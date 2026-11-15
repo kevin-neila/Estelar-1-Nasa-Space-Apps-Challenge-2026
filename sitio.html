@@ -128,6 +128,24 @@
           </div>
         </div>
 
+        <div class="custom-only" id="custom-lola-bar" style="display: none; margin-top: 14px; padding: 12px 14px; border-radius: 10px; border: 1px solid rgba(245, 158, 11, 0.35); background: rgba(245, 158, 11, 0.08); font-size: 13px; line-height: 1.5;">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <div>
+              <strong style="color: #FCD34D;">Sin relieve NASA LOLA local (métricas en N/A):</strong>
+              <span class="muted">En coordenadas libres no asumimos horizonte plano para no falsear el 100% de luz. La posición astronómica JPL DE421 (Sol/Tierra) sí es exacta.</span>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <input type="file" id="in-lola-file" accept=".json,application/json" style="display: none;" />
+              <button type="button" class="btn" id="btn-upload-lola">Cargar LOLA (.json)</button>
+              <button type="button" class="btn" id="btn-clear-lola" style="display: none;">Quitar archivo</button>
+            </div>
+          </div>
+          <div class="muted" id="custom-lola-spec" style="font-size: 12px; margin-top: 6px;">
+            Archivo requerido (bajo responsabilidad del usuario): <code>.json</code> con arreglo <code>horizon_deg</code> de 360 ángulos (°), generado con <code>scripts/build_site_products.py</code> desde LOLA <code>LDEM_80S_20M_FLOAT</code> / <code>LDEM_128_FLOAT</code>. Si incluye <code>elevation_m</code>, <code>slope_deg</code>, <code>illumination_frac</code> y <code>earth_visible_frac</code>, también desbloquea los 4 mapas del PDF.
+          </div>
+          <div id="custom-lola-status" style="font-size: 12px; margin-top: 4px; color: #38BDF8;"></div>
+        </div>
+
         <div style="margin-top: 14px;">
           <label class="field">Momento en la Ventana: <span id="cursor-label" class="mono" style="color: var(--blue-electric); font-weight: 600;"></span>
             <input type="range" id="cursor" min="0" max="100" value="0" />

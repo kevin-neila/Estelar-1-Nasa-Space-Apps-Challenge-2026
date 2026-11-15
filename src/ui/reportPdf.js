@@ -274,7 +274,7 @@ function drawSwatch(doc, x, y, rgb, label, desc) {
 /**
  * Generates a 2-page technical & didactic PDF for the Site Analysis page.
  */
-export function exportSiteReportPdf({ site, product, metrics, verdict, summary, windowHours, startUtcLabel }) {
+export function exportSiteReportPdf({ site, product, metrics, verdict, summary, windowHours, startUtcLabel, hasHorizon = true }) {
   const isEn = getLang() === "en";
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const w = doc.internal.pageSize.getWidth();
@@ -301,8 +301,8 @@ export function exportSiteReportPdf({ site, product, metrics, verdict, summary, 
   doc.setTextColor(40, 50, 68);
   const latStr = `${Math.abs(site.lat).toFixed(2)}°${site.lat < 0 ? "S" : "N"}`;
   const lonStr = `${Math.abs(site.lon).toFixed(2)}°${site.lon < 0 ? (isEn ? "W" : "O") : "E"}`;
-  const metaSrc = product?.metadata?.terrain_source || "LDEM_80S_20M_FLOAT";
-  const elevM = product?.metadata?.site_elevation_m ?? "—";
+  const metaSrc = hasHorizon ? (product?.metadata?.terrain_source || "LDEM_80S_20M_FLOAT") : (isEn ? "No local LOLA DEM" : "Sin DEM LOLA local");
+  const elevM = hasHorizon ? (product?.metadata?.site_elevation_m ?? "—") : "N/A";
 
   doc.setFont("helvetica", "bold");
   doc.text(`${isEn ? "Provider / Lander" : "Proveedor / Módulo"}:`, 20, y + 7);
@@ -331,14 +331,23 @@ export function exportSiteReportPdf({ site, product, metrics, verdict, summary, 
   const sunlitHrs = (sunlitFrac * windowHours).toFixed(1);
   const darkHrs = ((1 - sunlitFrac) * windowHours).toFixed(1);
   const earthHrs = (earthFrac * windowHours).toFixed(1);
-  const kpis = [
-    [isEn ? "Sunlit Time" : "Luz Solar", `${Math.round(sunlitFrac * 100)}% (${sunlitHrs} h)`, [234, 179, 8]],
-    [isEn ? "Darkness Time" : "Horas en Sombra", `${Math.round((1 - sunlitFrac) * 100)}% (${darkHrs} h)`, [100, 116, 139]],
-    [isEn ? "Earth Direct (DTE)" : "Visibilidad Tierra", `${Math.round(earthFrac * 100)}% (${earthHrs} h)`, [56, 189, 248]],
-    [isEn ? "Sun + Earth Together" : "Sol y Tierra Juntos", `${Math.round(bothFrac * 100)}%`, [16, 185, 129]],
-    [isEn ? "Max Dark Streak" : "Racha Oscura Máx.", `${maxDarkH.toFixed(1)} h`, [245, 158, 11]],
-    [isEn ? "Max Radio Blackout" : "Apagón Radio Máx.", `${maxNoEarthH.toFixed(1)} h`, [239, 68, 68]],
-  ];
+  const kpis = hasHorizon
+    ? [
+        [isEn ? "Sunlit Time" : "Luz Solar", `${Math.round(sunlitFrac * 100)}% (${sunlitHrs} h)`, [234, 179, 8]],
+        [isEn ? "Darkness Time" : "Horas en Sombra", `${Math.round((1 - sunlitFrac) * 100)}% (${darkHrs} h)`, [100, 116, 139]],
+        [isEn ? "Earth Direct (DTE)" : "Visibilidad Tierra", `${Math.round(earthFrac * 100)}% (${earthHrs} h)`, [56, 189, 248]],
+        [isEn ? "Sun + Earth Together" : "Sol y Tierra Juntos", `${Math.round(bothFrac * 100)}%`, [16, 185, 129]],
+        [isEn ? "Max Dark Streak" : "Racha Oscura Máx.", `${maxDarkH.toFixed(1)} h`, [245, 158, 11]],
+        [isEn ? "Max Radio Blackout" : "Apagón Radio Máx.", `${maxNoEarthH.toFixed(1)} h`, [239, 68, 68]],
+      ]
+    : [
+        [isEn ? "Sunlit Time" : "Luz Solar", "N/A", [148, 163, 184]],
+        [isEn ? "Darkness Time" : "Horas en Sombra", "N/A", [148, 163, 184]],
+        [isEn ? "Earth Direct (DTE)" : "Visibilidad Tierra", "N/A", [148, 163, 184]],
+        [isEn ? "Sun + Earth Together" : "Sol y Tierra Juntos", "N/A", [148, 163, 184]],
+        [isEn ? "Max Dark Streak" : "Racha Oscura Máx.", "N/A", [148, 163, 184]],
+        [isEn ? "Max Radio Blackout" : "Apagón Radio Máx.", "N/A", [148, 163, 184]],
+      ];
 
   const colW = (w - 38) / 3;
   kpis.forEach(([lbl, val, rgb], idx) => {
@@ -363,8 +372,12 @@ export function exportSiteReportPdf({ site, product, metrics, verdict, summary, 
   y += 44;
 
   // Viability Verdict
-  const vRgb = verdict === "green" ? [16, 185, 129] : verdict === "amber" ? [245, 158, 11] : [239, 68, 68];
-  const vLabel = verdict === "green" ? (isEn ? "VIABLE" : "VIABLE") : verdict === "amber" ? (isEn ? "MARGINAL" : "MARGINAL") : (isEn ? "CRITICAL" : "CRÍTICO");
+  const vRgb = !hasHorizon || verdict === "na"
+    ? [100, 116, 139]
+    : verdict === "green" ? [16, 185, 129] : verdict === "amber" ? [245, 158, 11] : [239, 68, 68];
+  const vLabel = !hasHorizon || verdict === "na"
+    ? "N/A"
+    : verdict === "green" ? (isEn ? "VIABLE" : "VIABLE") : verdict === "amber" ? (isEn ? "MARGINAL" : "MARGINAL") : (isEn ? "CRITICAL" : "CRÍTICO");
   doc.setFillColor(244, 247, 252);
   doc.roundedRect(16, y, w - 32, 24, 2, 2, "F");
   doc.setFillColor(vRgb[0], vRgb[1], vRgb[2]);

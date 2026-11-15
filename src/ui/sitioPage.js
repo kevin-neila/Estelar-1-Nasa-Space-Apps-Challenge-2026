@@ -21,7 +21,7 @@ const state = {
   cursor: 0,
   th: { ...DEFAULT_THRESHOLDS }
 };
-let siteObj = null, product = null, run = null, playing = null;
+let siteObj = null, product = null, customProduct = null, run = null, playing = null;
 
 // Selectors
 $("sel-site").innerHTML = sites.map((s) => `<option value="${s.id}">${s.name} (${s.site})</option>`).join("") + `<option value="custom">Coordenadas personalizadas…</option>`;
@@ -47,8 +47,15 @@ $("thresholds").addEventListener("input", (e) => {
 
 async function loadSite() {
   if (state.id === "custom") {
-    siteObj = { id: "custom", name: "Punto Personalizado", lat: state.lat, lon: state.lon, status: "custom", elevM: 0 };
-    product = null;
+    product = customProduct;
+    siteObj = {
+      id: "custom",
+      name: product?.metadata?.name ? `Punto Personalizado (${product.metadata.name})` : "Punto Personalizado",
+      lat: state.lat,
+      lon: state.lon,
+      status: "custom",
+      elevM: product?.metadata?.site_elevation_m ?? 0
+    };
   } else {
     const meta = sites.find((s) => s.id === state.id) || sites[0];
     state.id = meta.id;
@@ -56,6 +63,9 @@ async function loadSite() {
     siteObj = { ...meta, elevM: product?.metadata.site_elevation_m ?? 0 };
   }
   document.querySelectorAll(".custom-only").forEach((e) => (e.style.display = state.id === "custom" ? "" : "none"));
+  if (state.id === "custom") {
+    $("btn-clear-lola").style.display = customProduct ? "" : "none";
+  }
   $("site-name").textContent = siteObj.name;
   $("site-kicker").textContent = siteObj.id === "custom" ? "Coordenadas Personalizadas" : `${siteObj.provider} · Misión ${siteObj.mission}`;
   $("site-sub").innerHTML = `${fmtLat(siteObj.lat)}, ${fmtLon(siteObj.lon)}${siteObj.site ? " · " + siteObj.site : ""}` +
@@ -94,8 +104,28 @@ function recompute(resetCursor) {
   syncHash();
 }
 
+function hasLocalHorizon() {
+  return Boolean(product?.horizon_deg && product.horizon_deg.length >= 360);
+}
+
 function renderWindow() {
   const m = run.metrics, l = run.lights;
+  if (!hasLocalHorizon()) {
+    $("lights").innerHTML = ["Energía Solar", "Enlace Tierra (LOS)", "Viabilidad Global"].map((lbl) =>
+      `<div class="light-pill"><span class="dot" style="background:#94A3B8"></span>${lbl}: N/A</div>`).join("");
+    $("plain").textContent = getLang() === "en"
+      ? `No local NASA LOLA horizon profile is loaded for ${siteObj.name}. Sun/Earth positions (JPL DE421) are active above, while terrain-dependent illumination, blackout, and viability metrics remain N/A until you load a LOLA .json file or select a CLPS site.`
+      : `No hay perfil de horizonte NASA LOLA cargado para ${siteObj.name}. Las posiciones astronómicas del Sol y la Tierra (JPL DE421) son reales, pero las métricas dependientes del relieve permanecen en N/A hasta cargar un archivo LOLA (.json) o elegir un sitio CLPS.`;
+    $("win-metrics").innerHTML = [
+      metric("Iluminación Solar", "N/A", "requiere perfil LOLA 360°"),
+      metric("Máxima Oscuridad", "N/A", "sin relieve local"),
+      metric("Tierra Visible (DTE)", "N/A", "requiere perfil LOLA 360°"),
+      metric("Mayor Corte de Radio", "N/A", "sin relieve local"),
+      metric("Índice Panel Horizontal", "N/A", "sin ocultación real"),
+      metric("Índice Panel Vertical", "N/A", "sin ocultación real")
+    ].join("");
+    return;
+  }
   $("lights").innerHTML = ["power", "comms", "overall"].map((k) =>
     `<div class="light-pill"><span class="dot" style="background:${LIGHT[l[k]]}"></span>${k === "power" ? "Energía Solar" : k === "comms" ? "Enlace Tierra (LOS)" : "Viabilidad Global"}: ${LIGHT_LABEL[l[k]]}</div>`).join("");
   $("plain").textContent = plainSummary(m, siteObj.name, getLang());
@@ -128,6 +158,18 @@ function render() {
   const toSun = timeToChange(S, S.sunUp, i), toEarth = timeToChange(S, S.earthUp, i);
   const rest = ((S.n - 1 - i) * S.stepMs) / 3.6e6;
   const ev = (h, up, what) => (h === null ? `sin cambio en las próx ${fmtHours(rest)}` : `${what} en ${fmtHours(h)}`);
+
+  if (!hasLocalHorizon()) {
+    $("now-metrics").innerHTML = [
+      metric("Elevación Solar", `${sky.sun.el.toFixed(2)}°`, `azimut ${sky.sun.az.toFixed(1)}° · horizonte local N/A (sin DEM)`),
+      metric("Tiempo hasta ocaso / salida", "N/A", "requiere perfil LOLA 360°"),
+      metric("Elevación Tierra", `${sky.earth.el.toFixed(2)}°`, `azimut ${sky.earth.az.toFixed(1)}° · horizonte local N/A (sin DEM)`),
+      metric("Tiempo hasta Earthset / rise", "N/A", "requiere perfil LOLA 360°"),
+      metric("Estado Solar Actual", "N/A", "sin relieve LOLA cargado"),
+      metric("Enlace con la Tierra", "N/A", "sin relieve LOLA cargado")
+    ].join("");
+    return;
+  }
 
   $("now-metrics").innerHTML = [
     metric("Elevación Solar", `${sky.sun.el.toFixed(2)}°`, `azimut ${sky.sun.az.toFixed(1)}° · horizonte local ${(horizonAtSafe(horizon, sky.sun.az)).toFixed(1)}°`),
@@ -189,16 +231,71 @@ $("btn-csv").addEventListener("click", () => {
   a.click();
 });
 
+$("btn-upload-lola")?.addEventListener("click", () => $("in-lola-file")?.click());
+
+$("in-lola-file")?.addEventListener("change", async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const statusEl = $("custom-lola-status");
+  try {
+    const data = JSON.parse(await file.text());
+    if (!Array.isArray(data.horizon_deg) || data.horizon_deg.length < 360) {
+      throw new Error("El JSON debe incluir un arreglo 'horizon_deg' de 360 valores.");
+    }
+    customProduct = {
+      ...data,
+      metadata: {
+        terrain_source: data.metadata?.terrain_source || "custom_lola_json",
+        site_elevation_m: typeof data.metadata?.site_elevation_m === "number" ? data.metadata.site_elevation_m : 0,
+        ...data.metadata
+      }
+    };
+    if (typeof data.metadata?.lat === "number") {
+      state.lat = data.metadata.lat;
+      $("in-lat").value = state.lat;
+    }
+    if (typeof data.metadata?.lon === "number") {
+      state.lon = data.metadata.lon;
+      $("in-lon").value = state.lon;
+    }
+    if (statusEl) {
+      statusEl.style.color = "#34D399";
+      statusEl.textContent = `✓ Cargado: ${file.name} (${customProduct.horizon_deg.length} azimuts${customProduct.elevation_m?.length ? " + grilla 40×40 km" : ""})`;
+    }
+    await loadSite();
+  } catch (err) {
+    if (statusEl) {
+      statusEl.style.color = "#F87171";
+      statusEl.textContent = `✕ Error al leer ${file.name}: ${err.message}`;
+    }
+  } finally {
+    e.target.value = "";
+  }
+});
+
+$("btn-clear-lola")?.addEventListener("click", async () => {
+  customProduct = null;
+  const statusEl = $("custom-lola-status");
+  if (statusEl) statusEl.textContent = "";
+  await loadSite();
+});
+
 $("btn-site-pdf")?.addEventListener("click", () => {
   if (!run || !siteObj) return;
+  const hasHorizon = hasLocalHorizon();
   exportSiteReportPdf({
     site: siteObj,
     product,
     metrics: run.metrics,
-    verdict: run.lights?.overall || "amber",
-    summary: plainSummary(run.metrics, siteObj.name, getLang()),
+    verdict: hasHorizon ? (run.lights?.overall || "amber") : "na",
+    summary: hasHorizon
+      ? plainSummary(run.metrics, siteObj.name, getLang())
+      : (getLang() === "en"
+          ? "No local NASA LOLA horizon profile was loaded for this custom coordinate. Terrain-dependent metrics are reported as N/A; only JPL DE421 astronomical positions apply."
+          : "No se cargó un perfil de horizonte NASA LOLA local para esta coordenada personalizada. Las métricas dependientes del relieve se reportan como N/A; solo aplican las posiciones astronómicas JPL DE421."),
     windowHours: state.days * 24,
     startUtcLabel: fmtUtc(run.t0),
+    hasHorizon,
   });
 });
 

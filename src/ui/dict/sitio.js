@@ -140,6 +140,19 @@ export default {
   "Elevación terrestre": "Earth elevation",
   "horizonte del terreno hacia el Sol": "terrain horizon toward Sun",
 
+  "Sin relieve NASA LOLA local (métricas en N/A):": "No local NASA LOLA relief (metrics set to N/A):",
+  "En coordenadas libres no asumimos horizonte plano para no falsear el 100% de luz. La posición astronómica JPL DE421 (Sol/Tierra) sí es exacta.":
+    "For custom coordinates we do not assume a flat horizon to avoid false 100% sunlight. Astronomical JPL DE421 positions (Sun/Earth) remain exact.",
+  "Cargar LOLA (.json)": "Load LOLA (.json)",
+  "Quitar archivo": "Remove file",
+  "requiere perfil LOLA 360°": "requires 360° LOLA profile",
+  "sin relieve local": "no local relief",
+  "sin ocultación real": "no terrain occultation",
+  "sin relieve LOLA cargado": "no LOLA relief loaded",
+  "azimut {n}° · horizonte local N/A (sin DEM)": "azimuth {n}° · local horizon N/A (no DEM)",
+  "Tiempo hasta ocaso / salida": "Time to sunset / sunrise",
+  "Tiempo hasta Earthset / rise": "Time to Earthset / Earthrise",
+
   "ArtemisForge · Topografía de NASA LRO LOLA · Efemérides JPL DE421 · Desarrollado por":
     "ArtemisForge · NASA LRO LOLA Topography · JPL DE421 Ephemerides · Developed by",
   "para el NASA Space Apps 2026": "for NASA Space Apps 2026"
