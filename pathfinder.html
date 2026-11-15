@@ -184,8 +184,8 @@
         <span id="val-moon-scale">1.0x</span>
         <input type="range" id="slider-moon-scale" min="1.0" max="1.0" step="0.1" value="1.0" />
       </div>
-      <!-- Cuadrícula Cockpit de 3 Columnas -->
-      <main class="cockpit-grid tactical-layout">
+      <!-- Cuadrícula Cockpit de 3 Columnas (panel derecho colapsado por defecto en PC) -->
+      <main class="cockpit-grid tactical-layout right-collapsed">
         <!-- Columna Izquierda: Parámetros y Capas -->
         <aside class="cockpit-column left-col">
           <!-- 01 / Selector de Sitio y Preset de Misión -->
@@ -345,6 +345,10 @@
             <div class="viewport-watermark">
               <span id="watermark-source-label">SHACKLETON POLO SUR // LRO LOLA 20M + TEXTURA NAC</span>
             </div>
+            <!-- Pestaña lateral para abrir/cerrar telemetría en PC -->
+            <button type="button" id="btn-toggle-right-panel" class="right-panel-toggle" title="Mostrar u ocultar panel de telemetría" aria-expanded="false" aria-label="Mostrar u ocultar panel de telemetría">
+              <span class="toggle-arrow">‹</span>
+            </button>
           </div>
 
           <!-- Muelle Inferior: Osciloscopio de Perfil Topográfico y Térmico -->

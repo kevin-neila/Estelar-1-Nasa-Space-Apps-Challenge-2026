@@ -5,6 +5,7 @@ export default {
 
   "DOSSIER TÉCNICO Y RIGOR CIENTÍFICO": "TECHNICAL DOSSIER & SCIENTIFIC RIGOR",
   "Metodología y Fuentes de Datos NASA": "Methodology and NASA Data Sources",
+  "Descargar PDF (Bibliografía APA)": "Download PDF (APA Bibliography)",
   "Desarrollado para el": "Developed for the",
   ". Sin terrenos inventados: cada horizonte, coordenada y vector orbital proviene directamente del Sistema de Datos Planetarios de la NASA (PDS) y de las efemérides JPL Horizons.": ". No invented terrain: every horizon, coordinate and orbital vector comes directly from NASA's Planetary Data System (PDS) and the JPL Horizons ephemerides.",
 

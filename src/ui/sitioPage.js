@@ -1,6 +1,7 @@
-﻿import { skyAt, timeToChange, DEFAULT_THRESHOLDS } from "../core/geometry.js";
+import { skyAt, timeToChange, DEFAULT_THRESHOLDS } from "../core/geometry.js";
 import { runScenario, plainSummary } from "../core/scenario.js";
 import { drawPanorama, drawDome, drawTimeline } from "./skyCharts.js";
+import { exportSiteReportPdf } from "./reportPdf.js";
 import {
   loadSites, loadEphemeris, loadSiteProduct, renderNav, getLang, readHash, writeHash, toUtcInput, fromUtcInput, fmtUtc,
   fmtHours, fmtLat, fmtLon, LIGHT, LIGHT_LABEL, STATUS_LABEL
@@ -186,6 +187,19 @@ $("btn-csv").addEventListener("click", () => {
   a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
   a.download = `${siteObj.id}_${toUtcInput(t0).slice(0, 10)}.csv`;
   a.click();
+});
+
+$("btn-site-pdf")?.addEventListener("click", () => {
+  if (!run || !siteObj) return;
+  exportSiteReportPdf({
+    site: siteObj,
+    product,
+    metrics: run.metrics,
+    verdict: run.lights?.overall || "amber",
+    summary: plainSummary(run.metrics, siteObj.name, getLang()),
+    windowHours: state.days * 24,
+    startUtcLabel: fmtUtc(run.t0),
+  });
 });
 
 new ResizeObserver(() => run && render()).observe(document.querySelector("main"));

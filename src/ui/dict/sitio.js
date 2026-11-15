@@ -41,6 +41,7 @@ export default {
   "Personaliza los límites de energía y comunicaciones de tu módulo de aterrizaje.":
     "Customize power and communication thresholds for your lander.",
   "Descargar CSV Horario": "Download Hourly CSV",
+  "Descargar PDF Técnico": "Download Technical PDF",
   "Llevar a Comparador →": "Open in Comparator →",
   "Cabina Pathfinder →": "Pathfinder Cockpit →",
 

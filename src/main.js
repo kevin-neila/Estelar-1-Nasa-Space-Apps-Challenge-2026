@@ -440,6 +440,20 @@ class ArtemisForgeApp {
     };
 
     document.getElementById("btn-expand-3d").addEventListener("click", toggleTheatreMode);
+
+    // Toggle right-hand telemetry panel on desktop (collapsed by default)
+    const btnToggleRight = document.getElementById("btn-toggle-right-panel");
+    if (btnToggleRight) {
+      btnToggleRight.addEventListener("click", () => {
+        const layout = document.querySelector(".tactical-layout");
+        const isCollapsed = layout.classList.toggle("right-collapsed");
+        btnToggleRight.setAttribute("aria-expanded", isCollapsed ? "false" : "true");
+        const arrow = btnToggleRight.querySelector(".toggle-arrow");
+        if (arrow) arrow.textContent = isCollapsed ? "‹" : "›";
+        setTimeout(() => { this.scene.resize(); this.chart.draw(); }, 60);
+        setTimeout(() => { this.scene.resize(); this.chart.draw(); }, 270);
+      });
+    }
     window.addEventListener("keydown", (e) => {
       if ((e.key === "f" || e.key === "F") && document.activeElement?.tagName !== "INPUT") {
         toggleTheatreMode();

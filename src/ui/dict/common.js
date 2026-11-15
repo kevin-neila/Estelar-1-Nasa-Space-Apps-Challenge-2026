@@ -12,6 +12,13 @@ export default {
   "Abrir menú": "Open menu",
   "Navegación principal": "Main navigation",
   "Idioma": "Language",
+  "Compartir": "Share",
+  "Compartir con QR": "Share via QR",
+  "Compartir Proyecto": "Share Project",
+  "Escanea el código QR para abrir la página principal desde cualquier dispositivo.": "Scan the QR code to open the landing page from any device.",
+  "Copiar enlace": "Copy link",
+  "¡Copiado!": "Copied!",
+  "Cerrar": "Close",
 
   "Viable": "Viable",
   "Marginal": "Marginal",

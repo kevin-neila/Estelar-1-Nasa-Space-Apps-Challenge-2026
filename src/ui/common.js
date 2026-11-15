@@ -1,4 +1,4 @@
-﻿import { Ephemeris } from "../core/ephemeris.js";
+import { Ephemeris } from "../core/ephemeris.js";
 import { getLang, setLang, LANGS, initI18n, t } from "./i18n.js";
 export { t, getLang };
 
@@ -73,6 +73,13 @@ export function renderNav(active) {
         </button>
         <ul class="lang-list" role="menu" aria-label="Idioma">${langItems}</ul>
       </div>
+      <button type="button" class="share-qr-btn" id="share-qr-btn" aria-label="Compartir con QR" title="Compartir">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+          <path d="M14 14h3v3h-3zM18 18h3v3h-3zM18 14h3M14 21h3"/>
+        </svg>
+        <span>Compartir</span>
+      </button>
     </div>`;
 
   // Fondo de orbes de color (da vida al desenfoque del glassmorphism)
@@ -112,7 +119,75 @@ export function renderNav(active) {
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAll(); });
   el.querySelectorAll("nav a").forEach((a) => a.addEventListener("click", closeAll));
 
+  const shareBtn = el.querySelector("#share-qr-btn");
+  if (shareBtn) {
+    shareBtn.addEventListener("click", () => {
+      closeAll();
+      openShareQrModal();
+    });
+  }
+
   initI18n();
+}
+
+async function openShareQrModal() {
+  let modal = document.getElementById("qr-share-modal");
+  const landingUrl = new URL("index.html", window.location.href).href.replace(/\/index\.html$/, "/");
+
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "qr-share-modal";
+    modal.className = "qr-modal-backdrop";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.innerHTML = `
+      <div class="qr-modal-card">
+        <button type="button" class="qr-modal-close" aria-label="${t("Cerrar")}">✕</button>
+        <h3>${t("Compartir Proyecto")}</h3>
+        <p class="qr-modal-desc">${t("Escanea el código QR para abrir la página principal desde cualquier dispositivo.")}</p>
+        <div class="qr-canvas-wrap">
+          <canvas id="qr-share-canvas" width="220" height="220"></canvas>
+        </div>
+        <div class="qr-url-box" data-no-i18n>${landingUrl}</div>
+        <div class="qr-modal-actions">
+          <button type="button" class="btn primary small" id="qr-copy-btn">${t("Copiar enlace")}</button>
+          <button type="button" class="btn small qr-close-action">${t("Cerrar")}</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    const closeModal = () => modal.classList.remove("open");
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+    modal.querySelector(".qr-modal-close").addEventListener("click", closeModal);
+    modal.querySelector(".qr-close-action").addEventListener("click", closeModal);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+
+    const copyBtn = modal.querySelector("#qr-copy-btn");
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(landingUrl);
+        copyBtn.textContent = t("¡Copiado!");
+        setTimeout(() => { copyBtn.textContent = t("Copiar enlace"); }, 1800);
+      } catch {
+        copyBtn.textContent = landingUrl;
+      }
+    });
+  } else {
+    modal.querySelector("h3").textContent = t("Compartir Proyecto");
+    modal.querySelector(".qr-modal-desc").textContent = t("Escanea el código QR para abrir la página principal desde cualquier dispositivo.");
+    modal.querySelector("#qr-copy-btn").textContent = t("Copiar enlace");
+    modal.querySelector(".qr-close-action").textContent = t("Cerrar");
+  }
+
+  modal.classList.add("open");
+  const canvas = modal.querySelector("#qr-share-canvas");
+  const QRCode = (await import("qrcode")).default;
+  await QRCode.toCanvas(canvas, landingUrl, {
+    width: 220,
+    margin: 2,
+    color: { dark: "#0a1020", light: "#ffffff" },
+  });
 }
 export function fmtHours(h) {
   if (h === null || h === undefined || !isFinite(h)) return "—";
