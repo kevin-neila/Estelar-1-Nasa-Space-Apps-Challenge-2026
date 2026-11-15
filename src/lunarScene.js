@@ -1114,9 +1114,9 @@ export class LunarSouthPoleScene {
       } else if (
         this.hasMovedFromHome &&
         !this.followRover &&
-        now - this.lastInteractionTime > 6000
+        now - this.lastInteractionTime > 12000
       ) {
-        // Tras 6 segundos sin interacción, vuelve suavemente a la posición original
+        // Tras 12 segundos sin interacción, vuelve suavemente a la posición original
         const alpha = 1 - Math.exp(-3.0 * dt);
         this.camera.position.lerp(this.defaultCamPos, alpha);
         this.controls.target.lerp(this.defaultTarget, alpha);

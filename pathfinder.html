@@ -186,6 +186,101 @@
       </div>
       <!-- Cuadrícula Cockpit de 3 Columnas (panel derecho colapsado por defecto en PC) -->
       <main class="cockpit-grid tactical-layout right-collapsed">
+        <!-- Columna Central: Viewport 3D WebGL + Osciloscopio de Perfil -->
+        <section class="center-viewport">
+          <div class="viewport-canvas-container">
+            <!-- Retículo Reseau (+) estilo Cámara Hasselblad Apollo -->
+            <div class="reseau-grid" aria-hidden="true">
+              <span class="cross c-tl">+</span>
+              <span class="cross c-tr">+</span>
+              <span class="cross c-center">+</span>
+              <span class="cross c-bl">+</span>
+            </div>
+
+            <div id="lunar-canvas-container"></div>
+
+            <!-- HUD Flotante Superior -->
+            <div class="viewport-hud">
+              <div></div>
+              <div class="viewport-toolbar">
+                <button class="btn btn-outline" id="btn-expand-3d" title="Maximizar área 3D (Tecla: F)" style="font-size: 11px; padding: 4px 10px;">
+                  ⛶ MAX 3D
+                </button>
+                <button class="btn btn-outline" id="btn-toggle-rover" title="Iniciar/Pausar Conducción" style="font-size: 11px; padding: 4px 10px;">
+                  ⏯ ROVER DRIVE
+                </button>
+                <div id="verdict-banner" class="verdict-icon GO" role="status" aria-live="polite" tabindex="0" title="Autorizado para salida del rover (GO)"></div>
+              </div>
+            </div>
+
+            <!-- Coordenadas en texto simple, esquina inferior derecha -->
+            <div class="viewport-coords" aria-label="Coordenadas de la travesía">
+              <div><span class="hud-tag hls">HLS-A</span> <span id="hud-start-coords">89.842°S, 212.0°E</span></div>
+              <div><span class="hud-tag psr">PSR-B</span> <span id="hud-goal-coords">89.810°S, 142.4°E</span></div>
+              <div><span class="hud-tag ltv">ROVER</span> <span id="hud-rover-live">0.0 km • 145K</span></div>
+            </div>
+            <!-- Marca de Agua de Fuente de Datos -->
+            <div class="viewport-watermark">
+              <span id="watermark-source-label">SHACKLETON POLO SUR // LRO LOLA 20M + TEXTURA NAC</span>
+            </div>
+            <!-- Pestaña lateral para abrir/cerrar telemetría en PC -->
+            <button type="button" id="btn-toggle-right-panel" class="right-panel-toggle" title="Mostrar u ocultar panel de telemetría" aria-expanded="false" aria-label="Mostrar u ocultar panel de telemetría">
+              <span class="toggle-arrow">‹</span>
+            </button>
+
+            <!-- Selector flotante de capas estilo Google Maps -->
+            <div class="map-layers-fab" id="map-layers-fab">
+              <button type="button" class="map-layers-trigger" id="btn-layers-fab" aria-expanded="false" aria-haspopup="true" title="Capas del mapa">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                  <polyline points="2 12 12 17 22 12"></polyline>
+                  <polyline points="2 17 12 22 22 17"></polyline>
+                </svg>
+                <span id="i18n-layersFabLabel">Capas</span>
+              </button>
+              <div class="map-layers-popover hidden" id="map-layers-popover" role="menu">
+                <button type="button" class="map-layer-chip active" data-layer="optical">
+                  <span class="chip-swatch" style="background: linear-gradient(135deg, #1c1917, #e7e5e4);"></span>
+                  <span class="chip-label" id="i18n-fabOptical">Óptica</span>
+                </button>
+                <button type="button" class="map-layer-chip" data-layer="slope">
+                  <span class="chip-swatch" style="background: linear-gradient(135deg, #84cc16, #f59e0b, #ef4444);"></span>
+                  <span class="chip-label" id="i18n-fabSlope">Pendiente</span>
+                </button>
+                <button type="button" class="map-layer-chip" data-layer="thermal">
+                  <span class="chip-swatch" style="background: linear-gradient(135deg, #38bdf8, #818cf8, #ff5500);"></span>
+                  <span class="chip-label" id="i18n-fabThermal">Hielo / Temp</span>
+                </button>
+                <button type="button" class="map-layer-chip" data-layer="comms">
+                  <span class="chip-swatch" style="background: linear-gradient(135deg, #a3e635, #38bdf8, #e11d48);"></span>
+                  <span class="chip-label" id="i18n-fabComms">Enlace Tierra</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Muelle Inferior: Osciloscopio de Perfil Topográfico y Térmico -->
+          <div class="oscilloscope-panel">
+            <div class="osc-header">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span id="i18n-chartTitle" style="font-weight: 600; color: var(--text-main);">
+                  PERFIL DE ELEVACIÓN LOLA (m) Y TEMPERATURA DIVINER (K)
+                </span>
+              </div>
+              <div class="osc-legend">
+                <span class="leg-chip"><i style="background: #34d399;"></i> ELEV. LOLA (m)</span>
+                <span class="leg-chip"><i style="background: #f59e0b;"></i> TEMP. DIVINER (K)</span>
+                <span class="leg-chip"><i style="background: #ffffff;"></i> POSICIÓN ROVER</span>
+              </div>
+            </div>
+            <canvas id="profile-chart-canvas"></canvas>
+          </div>
+        </section>
+
+        <div class="cockpit-drawers" id="cockpit-drawers">
+          <div class="drawer-scroll-hint" id="drawer-scroll-hint" aria-hidden="true">
+            <span>Desliza para controles ↓</span>
+          </div>
         <!-- Columna Izquierda: Parámetros y Capas -->
         <aside class="cockpit-column left-col">
           <!-- 01 / Selector de Sitio y Preset de Misión -->
@@ -199,7 +294,7 @@
           </section>
 
           <!-- 02 / Capas PDS Multiespectrales -->
-          <section class="cockpit-card">
+          <section class="cockpit-card layers-card">
             <div class="card-title" id="i18n-panelLayersTitle">02 // Capas PDS Multiespectrales</div>
             <div class="layer-btn-stack">
               <button class="layer-btn active" data-layer="optical">
@@ -308,68 +403,10 @@
           </section>
         </aside>
 
-        <!-- Columna Central: Viewport 3D WebGL + Osciloscopio de Perfil -->
-        <section class="center-viewport">
-          <div class="viewport-canvas-container">
-            <!-- Retículo Reseau (+) estilo Cámara Hasselblad Apollo -->
-            <div class="reseau-grid" aria-hidden="true">
-              <span class="cross c-tl">+</span>
-              <span class="cross c-tr">+</span>
-              <span class="cross c-center">+</span>
-              <span class="cross c-bl">+</span>
-            </div>
-
-            <div id="lunar-canvas-container"></div>
-
-            <!-- HUD Flotante Superior -->
-            <div class="viewport-hud">
-              <div></div>
-              <div class="viewport-toolbar">
-                <button class="btn btn-outline" id="btn-expand-3d" title="Maximizar área 3D (Tecla: F)" style="font-size: 11px; padding: 4px 10px;">
-                  ⛶ MAX 3D
-                </button>
-                <button class="btn btn-outline" id="btn-toggle-rover" title="Iniciar/Pausar Conducción" style="font-size: 11px; padding: 4px 10px;">
-                  ⏯ ROVER DRIVE
-                </button>
-                <div id="verdict-banner" class="verdict-icon GO" role="status" aria-live="polite" tabindex="0" title="Autorizado para salida del rover (GO)"></div>
-              </div>
-            </div>
-
-            <!-- Coordenadas en texto simple, esquina inferior derecha -->
-            <div class="viewport-coords" aria-label="Coordenadas de la travesía">
-              <div><span class="hud-tag hls">HLS-A</span> <span id="hud-start-coords">89.842°S, 212.0°E</span></div>
-              <div><span class="hud-tag psr">PSR-B</span> <span id="hud-goal-coords">89.810°S, 142.4°E</span></div>
-              <div><span class="hud-tag ltv">ROVER</span> <span id="hud-rover-live">0.0 km • 145K</span></div>
-            </div>
-            <!-- Marca de Agua de Fuente de Datos -->
-            <div class="viewport-watermark">
-              <span id="watermark-source-label">SHACKLETON POLO SUR // LRO LOLA 20M + TEXTURA NAC</span>
-            </div>
-            <!-- Pestaña lateral para abrir/cerrar telemetría en PC -->
-            <button type="button" id="btn-toggle-right-panel" class="right-panel-toggle" title="Mostrar u ocultar panel de telemetría" aria-expanded="false" aria-label="Mostrar u ocultar panel de telemetría">
-              <span class="toggle-arrow">‹</span>
-            </button>
-          </div>
-
-          <!-- Muelle Inferior: Osciloscopio de Perfil Topográfico y Térmico -->
-          <div class="oscilloscope-panel">
-            <div class="osc-header">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-family: var(--font-mono); color: var(--blue-electric); font-weight: 700;">FIG. 02 //</span>
-                <span id="i18n-chartTitle" style="font-weight: 600; color: var(--text-main);">
-                  PERFIL DE ELEVACIÓN LOLA (m) Y TEMPERATURA DIVINER (K)
-                </span>
-              </div>
-              <div class="osc-legend">
-                <span class="leg-chip"><i style="background: #34d399;"></i> ELEV. LOLA (m)</span>
-                <span class="leg-chip"><i style="background: #f59e0b;"></i> TEMP. DIVINER (K)</span>
-                <span class="leg-chip"><i style="background: #ffffff;"></i> POSICIÓN ROVER</span>
-              </div>
-            </div>
-            <canvas id="profile-chart-canvas"></canvas>
-          </div>
-        </section>
-
+          <label class="mobile-sim-toggle" id="mobile-sim-toggle-wrap">
+            <input type="checkbox" id="chk-mobile-sim" autocomplete="off" />
+            <span id="i18n-mobileSimToggle">SIMULACIÓN</span>
+          </label>
         <!-- Columna Derecha: Dictamen y Telemetría -->
         <aside class="cockpit-column right-col">
           <!-- Cuadro de Telemetría y Presupuesto de Batería -->
@@ -467,6 +504,7 @@
             LRO LOLA DEM (20m/px) · Diviner Bolometric Temp · ShadowCam PSR Albedo · Efemérides JPL DE421.
           </footer>
         </aside>
+        </div>
       </main>
     </div>
 

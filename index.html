@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -114,7 +114,27 @@
         pointer-events: none;
         overflow: hidden;
       }
+      /* Resplandor esférico morado/azul detrás de la Luna (centro-centro)
+         Para ajustar manualmente:
+         - Cambia el tamaño del resplandor modificando "circle 48vmax" (ej. 35vmax más chico, 60vmax más grande)
+         - Cambia la intensidad modificando la opacidad (0.26 / 0.14) en los rgba(...)
+         - Cambia la posición modificando "at 50% 50%" */
+      .hero-stage-wrapper::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background: radial-gradient(
+          circle 48vmax at 50% 50%,
+          rgba(124, 92, 240, 0.26) 0%,
+          rgba(64, 130, 245, 0.14) 38%,
+          rgba(28, 48, 110, 0.05) 62%,
+          transparent 75%
+        );
+      }
       #hero-moon-canvas {
+        position: relative;
+        z-index: 1;
         width: 100%;
         height: 100%;
         display: block;

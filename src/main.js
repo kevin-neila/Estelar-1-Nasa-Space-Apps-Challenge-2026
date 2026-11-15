@@ -12,7 +12,7 @@ class ArtemisForgeApp {
     this.lang = getLang();
     this.dataset = null;
     this.sitesList = [];
-    this.activeSiteId = "shackleton";
+    this.activeSiteId = "im4";
     this.scene = null;
     this.chart = null;
     this.nasaApi = new NasaApiClient();
@@ -53,9 +53,10 @@ class ArtemisForgeApp {
       this.sitesList = [];
     }
 
-    if (targetSiteId && targetSiteId !== "shackleton") {
-      this.activeSiteId = targetSiteId;
-      await this.loadSiteData(targetSiteId);
+    const effectiveSiteId = targetSiteId || "im4";
+    if (effectiveSiteId !== "shackleton") {
+      this.activeSiteId = effectiveSiteId;
+      await this.loadSiteData(effectiveSiteId);
     } else {
       this.activeSiteId = "shackleton";
       const res = await fetch("./data/shackleton_pds_grid.json");
@@ -452,6 +453,85 @@ class ArtemisForgeApp {
         if (arrow) arrow.textContent = isCollapsed ? "‹" : "›";
         setTimeout(() => { this.scene.resize(); this.chart.draw(); }, 60);
         setTimeout(() => { this.scene.resize(); this.chart.draw(); }, 270);
+      });
+    }
+
+    // Mobile/tablet simulation telemetry toggle & fixed-3D / scrollable-profile placement
+    const chkMobileSim = document.getElementById("chk-mobile-sim");
+    const cockpitDrawers = document.getElementById("cockpit-drawers");
+    const centerViewport = document.querySelector(".center-viewport");
+    const oscPanel = document.querySelector(".oscilloscope-panel");
+    if (chkMobileSim && cockpitDrawers) {
+      chkMobileSim.checked = false;
+      cockpitDrawers.classList.remove("show-sim");
+      chkMobileSim.addEventListener("change", () => {
+        cockpitDrawers.classList.toggle("show-sim", chkMobileSim.checked);
+      });
+    }
+    if (cockpitDrawers && centerViewport && oscPanel) {
+      const mobileMq = window.matchMedia("(max-width: 1100px)");
+      const scrollHint = document.getElementById("drawer-scroll-hint");
+      const syncMobileOscPlacement = () => {
+        if (mobileMq.matches) {
+          if (oscPanel.parentElement !== cockpitDrawers) {
+            if (scrollHint && scrollHint.parentElement === cockpitDrawers) {
+              scrollHint.after(oscPanel);
+            } else {
+              cockpitDrawers.prepend(oscPanel);
+            }
+          }
+        } else if (oscPanel.parentElement !== centerViewport) {
+          centerViewport.appendChild(oscPanel);
+        }
+        setTimeout(() => {
+          this.scene.resize();
+          this.chart.draw();
+        }, 40);
+      };
+      syncMobileOscPlacement();
+      mobileMq.addEventListener("change", syncMobileOscPlacement);
+      if (scrollHint) {
+        const dismissScrollHint = () => {
+          if (cockpitDrawers.scrollTop > 12) {
+            scrollHint.classList.add("is-hidden");
+            cockpitDrawers.removeEventListener("scroll", dismissScrollHint);
+            setTimeout(() => scrollHint.remove(), 300);
+          }
+        };
+        cockpitDrawers.addEventListener("scroll", dismissScrollHint, { passive: true });
+      }
+    }
+
+    // Floating Google Maps-style layer selector
+    const btnLayersFab = document.getElementById("btn-layers-fab");
+    const layersPopover = document.getElementById("map-layers-popover");
+    const layerChips = document.querySelectorAll(".map-layer-chip");
+    const syncLayerChips = (layer) => {
+      layerChips.forEach((c) => c.classList.toggle("active", c.dataset.layer === layer));
+    };
+    document.querySelectorAll(".layer-btn").forEach((btn) => {
+      btn.addEventListener("click", () => syncLayerChips(btn.dataset.layer));
+    });
+    if (btnLayersFab && layersPopover) {
+      btnLayersFab.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isHidden = layersPopover.classList.toggle("hidden");
+        btnLayersFab.setAttribute("aria-expanded", isHidden ? "false" : "true");
+      });
+      layerChips.forEach((chip) => {
+        chip.addEventListener("click", () => {
+          const targetBtn = document.querySelector(`.layer-btn[data-layer="${chip.dataset.layer}"]`);
+          if (targetBtn) targetBtn.click();
+          syncLayerChips(chip.dataset.layer);
+          layersPopover.classList.add("hidden");
+          btnLayersFab.setAttribute("aria-expanded", "false");
+        });
+      });
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest("#map-layers-fab")) {
+          layersPopover.classList.add("hidden");
+          btnLayersFab.setAttribute("aria-expanded", "false");
+        }
       });
     }
     window.addEventListener("keydown", (e) => {
