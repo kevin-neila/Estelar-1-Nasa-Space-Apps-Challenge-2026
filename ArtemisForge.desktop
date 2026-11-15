@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=ArtemisForge (NASA Space Apps 2026)
+Comment=Launch Artemis South Pole Pathfinder 3D Cockpit
+Exec=/home/cacho/artemis-forge/start_artemis.sh
+Path=/home/cacho/artemis-forge
+Terminal=true
+Icon=applications-science
+Categories=Science;Astronomy;Education;

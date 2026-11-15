@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mapa 3D Lunar — CLPS Missions | Estelar 1</title>
+    <meta name="description" content="Explorador interactivo 3D de sitios de alunizaje CLPS en la Luna con posición real del Sol y la Tierra." />
+    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <link rel="stylesheet" href="/src/ui/glass.css" />
+    <style>
+      .map-layout {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        height: calc(100vh - 70px);
+        height: calc(100dvh - 70px);
+        overflow: hidden;
+      }
+      @media (max-width: 960px) {
+        .map-layout {
+          grid-template-columns: 1fr;
+          height: auto;
+        }
+        .map-layout { display: flex; flex-direction: column; }
+        #map-stage { order: -1; height: 62vh; height: 62dvh; min-height: 340px; flex: none; }
+        .map-sidebar { border-right: none; border-top: 1px solid var(--glass-border); overflow: visible; padding: 18px 16px 28px; }
+        .pin-card-modal { right: 12px; left: 12px; bottom: 12px; width: auto; max-height: 70%; overflow-y: auto; padding: 16px; }
+      }
+      .map-sidebar {
+        background: linear-gradient(160deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+        backdrop-filter: blur(30px) saturate(170%);
+        -webkit-backdrop-filter: blur(30px) saturate(170%);
+        border-right: 1px solid var(--glass-border);
+        padding: 24px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        z-index: 10;
+      }
+      #map-stage {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+      #map-stage canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .pin-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .pin-btn {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid transparent;
+        border-radius: 10px;
+        padding: 10px 12px;
+        color: var(--text-main);
+        font-family: var(--font-main);
+        font-size: 13px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: left;
+        transition: all 0.2s;
+      }
+      .pin-btn:hover, .pin-btn.active {
+        background: rgba(58, 86, 221, 0.15);
+        border-color: var(--blue-electric);
+        color: var(--text-pure);
+        transform: translateX(2px);
+      }
+      .pin-card-modal {
+        position: absolute;
+        right: 24px;
+        bottom: 24px;
+        width: min(390px, calc(100% - 48px));
+        background: linear-gradient(150deg, rgba(40,56,130,0.5), rgba(14,20,50,0.5));
+        backdrop-filter: blur(34px) saturate(180%);
+        -webkit-backdrop-filter: blur(34px) saturate(180%);
+        border: 1px solid var(--glass-border-bright);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+        border-radius: 18px;
+        padding: 20px;
+        display: none;
+        z-index: 30;
+        animation: fadeIn 0.25s ease;
+      }
+      .pin-card-modal.open { display: block; }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .pin-tooltip {
+        position: absolute;
+        pointer-events: none;
+        padding: 5px 10px;
+        background: rgba(14, 20, 50, 0.7);
+        backdrop-filter: blur(12px);
+        color: var(--text-pure);
+        border: 1px solid var(--glass-border);
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        display: none;
+        white-space: nowrap;
+        z-index: 40;
+      }
+      .map-controls-floating {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        z-index: 20;
+      }
+    </style>
+  </head>
+  <body>
+    <header id="site-nav"></header>
+
+    <main class="map-layout">
+      <!-- Left Controls Panel -->
+      <aside class="map-sidebar">
+        <div>
+          <h2>Explorador Lunar 3D</h2>
+          <p class="muted" style="font-size: 13px; margin-top: 4px;">
+            Haz clic en cualquier pin para ver la posición local del Sol y la Tierra calculada con el modelo oficial 3D.
+          </p>
+        </div>
+
+        <label class="field">
+          Momento de Iluminación (UTC)
+          <input type="datetime-local" id="map-time" />
+        </label>
+        <div>
+          <input type="range" id="map-time-slider" min="0" max="720" step="1" value="0" aria-label="Horas desde momento seleccionado" />
+          <div class="muted" style="font-size: 12px; margin-top: 4px;" id="map-time-label"></div>
+        </div>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn small" id="btn-view-pole">Polo Sur</button>
+          <button class="btn small" id="btn-view-near">Cara Visible</button>
+          <button class="btn small" id="btn-toggle-spin">Rotación: Activa</button>
+        </div>
+
+        <div>
+          <h3 style="font-size: 16px; margin-bottom: 8px;">Misiones CLPS</h3>
+          <ul class="pin-list" id="map-pin-list"></ul>
+        </div>
+      </aside>
+
+      <!-- 3D Stage -->
+      <section id="map-stage">
+        <div class="pin-tooltip" id="map-pin-tooltip"></div>
+        <div class="pin-card-modal" id="map-pin-card" role="dialog"></div>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      CLPS Lunar Mission Browser · Equipo <strong>Estelar 1</strong> · NASA Space Apps Challenge 2026
+    </footer>
+
+    <script type="module" src="/src/ui/mapaPage.js"></script>
+  </body>
+</html>
+

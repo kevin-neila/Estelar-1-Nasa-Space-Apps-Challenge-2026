@@ -1,0 +1,552 @@
+/* ==========================================================================
+   PATHFINDER GLASSMORPHISM COCKPIT STYLES
+   Estelar 1 — Apple / One UI Dark Frost Acrylic Design System
+   ========================================================================== */
+
+@import "./glass.css";
+
+.pathfinder-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: calc(100vh - var(--nav-h));
+  height: calc(100dvh - var(--nav-h));
+  overflow: hidden;
+}
+
+/* Secondary Action Sub-bar */
+.cockpit-subbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 24px;
+  background: rgba(8, 12, 20, 0.65);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border);
+  font-size: 13px;
+  z-index: 40;
+}
+
+.subbar-left, .subbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  padding: 3px 9px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+}
+
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 8px #34d399;
+}
+
+/* 3-Column Glassmorphism Cockpit Layout */
+.cockpit-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 310px 1fr 340px;
+  overflow: hidden;
+  transition: grid-template-columns 0.25s ease;
+}
+
+.cockpit-grid.theatre-mode {
+  grid-template-columns: 0px 1fr 0px;
+}
+
+.cockpit-grid.theatre-mode .cockpit-column {
+  padding: 0;
+  border: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cockpit-grid.theatre-mode .oscilloscope-panel {
+  display: none;
+}
+
+.cockpit-column {
+  background: linear-gradient(170deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025));
+  backdrop-filter: blur(34px) saturate(170%);
+  -webkit-backdrop-filter: blur(34px) saturate(170%);
+  padding: 16px 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 20;
+}
+
+.cockpit-column.left-col {
+  border-right: 1px solid var(--glass-border);
+}
+
+.cockpit-column.right-col {
+  border-left: 1px solid var(--glass-border);
+}
+
+/* Glass Section Cards */
+.cockpit-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.card-title {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--blue-electric);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Mode Switches & Sliders */
+.mode-switch-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+}
+
+.mode-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 6px 4px;
+  font-family: var(--font-main);
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.mode-btn.active {
+  background: var(--blue-primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px var(--blue-glow);
+}
+
+.slider-unit {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.slider-unit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Multi-spectral Layer Stack */
+.layer-btn-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.layer-btn {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--text-main);
+  font-family: var(--font-main);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.layer-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.layer-btn.active {
+  background: rgba(58, 86, 221, 0.2);
+  border-color: var(--blue-electric);
+  color: #ffffff;
+}
+
+.layer-code {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--blue-electric);
+  font-weight: 700;
+}
+
+.layer-name {
+  flex: 1;
+}
+
+.layer-bar {
+  width: 24px;
+  height: 6px;
+  border-radius: 3px;
+}
+
+/* Center Stage Viewport */
+.center-viewport {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #020408;
+}
+
+.viewport-canvas-container {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#lunar-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.viewport-hud {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hud-tape {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(10, 14, 22, 0.75);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 12px;
+  pointer-events: auto;
+}
+
+.hud-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hud-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.hud-tag.hls { background: rgba(142, 166, 255, 0.2); color: var(--blue-electric); }
+.hud-tag.psr { background: rgba(245, 158, 11, 0.2); color: var(--warn); }
+.hud-tag.ltv { background: rgba(16, 185, 129, 0.2); color: var(--ok); }
+
+.viewport-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.viewport-watermark {
+  position: absolute;
+  bottom: 12px;
+  left: 16px;
+  font-size: 11px;
+  color: var(--text-sub);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  padding: 3px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* Oscilloscope Profile Dock */
+.oscilloscope-panel {
+  height: 140px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
+  backdrop-filter: blur(30px) saturate(170%);
+  -webkit-backdrop-filter: blur(30px) saturate(170%);
+  border-top: 1px solid var(--glass-border);
+  padding: 10px 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.osc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+
+.osc-legend {
+  display: flex;
+  gap: 12px;
+}
+
+.leg-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.leg-chip i {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+#profile-chart-canvas {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Right Column: Verdict & Telemetry */
+.verdict-box-legacy {
+  background: rgba(16, 22, 34, 0.8);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+}
+
+.verdict-banner {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-top: 6px;
+}
+
+.verdict-banner.GO {
+  background: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+}
+
+.verdict-banner.CAUTION {
+  background: rgba(245, 158, 11, 0.25);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.verdict-banner.NOGO {
+  background: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.4);
+}
+
+.analog-battery-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.analog-battery-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8ea6ff, #10b981);
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.spec-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.spec-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Pitch Deck Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 6, 10, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 200;
+}
+
+.modal-backdrop.hidden {
+  display: none;
+}
+
+.pitch-glass-modal {
+  background: rgba(14, 18, 30, 0.95);
+  border: 1px solid var(--glass-border-bright);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+  max-width: 800px;
+  width: 100%;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.slide-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.slide-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.slide-dot.active {
+  width: 22px;
+  border-radius: 4px;
+  background: var(--blue-electric);
+}
+
+
+/* ---------- Coordenadas: texto simple, tenue, esquina inferior derecha ---------- */
+.viewport-coords {
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.62);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.85);
+  text-align: right;
+  pointer-events: none;
+  user-select: none;
+}
+.viewport-coords .hud-tag {
+  background: none;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 0 4px 0 0;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+}
+
+/* ---------- Aviso de seguridad: solo un símbolo que cambia de color ---------- */
+.verdict-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+  outline: none;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid currentColor;
+  transition: color 0.3s, box-shadow 0.3s, background 0.3s;
+}
+.verdict-icon svg { width: 18px; height: 18px; display: block; }
+.verdict-icon.GO { color: #34d399; box-shadow: 0 0 14px rgba(52, 211, 153, 0.35); }
+.verdict-icon.CAUTION { color: #fbbf24; box-shadow: 0 0 14px rgba(251, 191, 36, 0.4); }
+.verdict-icon.NOGO { color: #f87171; box-shadow: 0 0 16px rgba(248, 113, 113, 0.5); animation: verdict-pulse 1.6s ease-in-out infinite; }
+@keyframes verdict-pulse { 50% { box-shadow: 0 0 4px rgba(248, 113, 113, 0.2); } }
+
+/* ---------- Responsive: tablets y móviles ---------- */
+@media (max-width: 1100px) {
+  .pathfinder-shell { height: auto; min-height: calc(100dvh - var(--nav-h)); overflow: visible; }
+  .cockpit-grid { display: flex; flex-direction: column; overflow: visible; }
+  .center-viewport { order: -1; flex: none; }
+  .viewport-canvas-container { flex: none; height: 62vh; height: 62dvh; min-height: 340px; }
+  .oscilloscope-panel { height: 170px; }
+  .cockpit-column { overflow: visible; padding: 16px 14px; border: none !important; border-top: 1px solid var(--glass-border) !important; }
+  .cockpit-grid.theatre-mode { display: flex; }
+  .cockpit-grid.theatre-mode .cockpit-column { opacity: 1; pointer-events: auto; padding: 16px 14px; }
+  .cockpit-grid.theatre-mode .oscilloscope-panel { display: flex; }
+  .cockpit-grid.theatre-mode .viewport-canvas-container { height: 86dvh; }
+  .cockpit-grid.theatre-mode .cockpit-column { display: none; }
+  .modal-backdrop { padding: 12px; }
+  .pitch-glass-modal { padding: 20px; max-height: 92dvh; overflow-y: auto; }
+}
+
+@media (max-width: 640px) {
+  .viewport-hud { top: 10px; left: 10px; right: 10px; }
+  .viewport-toolbar .btn { padding: 4px 9px !important; min-height: 32px; }
+  .viewport-coords { right: 10px; bottom: 10px; font-size: 10.5px; }
+  .viewport-watermark { display: none; }
+  .osc-header { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .osc-legend { flex-wrap: wrap; gap: 8px; }
+  .oscilloscope-panel { height: 200px; }
+  .mode-btn { padding: 9px 4px; }
+}

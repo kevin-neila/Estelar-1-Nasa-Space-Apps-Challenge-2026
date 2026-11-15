@@ -1,0 +1,22 @@
+{
+  "frame": "MOON_ME_DE421 (Mean-Earth / polar-axis, includes physical libration)",
+  "origin": "Moon centre",
+  "start_utc": "2026-01-01T00:00:00Z",
+  "step_seconds": 3600,
+  "count": 43824,
+  "columns": [
+    "sun_x_km",
+    "sun_y_km",
+    "sun_z_km",
+    "earth_x_km",
+    "earth_y_km",
+    "earth_z_km"
+  ],
+  "dtype": "float32-le",
+  "moon_radius_km": 1737.4,
+  "sources": [
+    "JPL DE421 planetary ephemeris (de421.bsp)",
+    "NAIF lunar orientation kernel moon_pa_de421_1900-2050.bpc + moon_080317.tf",
+    "Computed with Skyfield (light-time corrected, no aberration, no refraction)"
+  ]
+}

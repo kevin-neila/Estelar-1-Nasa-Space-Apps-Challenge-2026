@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CLPS Lunar Mission Browser — Estelar 1 | NASA Space Apps 2026</title>
+    <meta name="description" content="Navegador de sitios de alunizaje y ventanas operativas para misiones lunares CLPS. Desarrollado por Estelar 1 para el NASA Space Apps Challenge 2026." />
+    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <link rel="stylesheet" href="/src/ui/glass.css" />
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        min-height: 100dvh;
+      }
+      .landing-hero {
+        position: relative;
+        flex: 1 0 auto;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        padding: 20px 48px;
+        max-width: 1440px;
+        margin: 0 auto;
+        z-index: 2;
+      }
+      @media (max-width: 1024px) {
+        .landing-hero {
+          padding: 24px 20px 40px;
+        }
+      }
+      .hero-content {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        max-width: 660px;
+        position: relative;
+        z-index: 2;
+      }
+      .badge-spaceapps {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(44, 74, 140, 0.22);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(122, 162, 227, 0.35);
+        color: var(--blue-electric);
+        padding: 6px 14px;
+        border-radius: 9999px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        width: fit-content;
+      }
+      .hero-title {
+        font-size: clamp(32px, 4.5vw, 56px);
+        line-height: 1.12;
+      }
+      .hero-title span {
+        background: linear-gradient(135deg, #ffffff 40%, var(--blue-electric) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .hero-desc {
+        font-size: 16px;
+        color: var(--text-muted);
+        line-height: 1.65;
+        max-width: 600px;
+      }
+      .feature-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 14px;
+        margin-top: 6px;
+      }
+      .f-card {
+        background: linear-gradient(145deg, rgba(16, 22, 34, 0.62), rgba(10, 14, 24, 0.45));
+        backdrop-filter: blur(26px) saturate(150%);
+        -webkit-backdrop-filter: blur(26px) saturate(150%);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 16px;
+        transition: transform 0.2s, border-color 0.2s;
+      }
+      .f-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(122, 162, 227, 0.35);
+      }
+      .f-card h4 {
+        font-size: 14px;
+        color: var(--text-pure);
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .f-card p {
+        font-size: 12.5px;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+      /* Background 3D Moon Stage */
+      .hero-stage-wrapper {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      #hero-moon-canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      #hero-moon-canvas canvas { display: block; width: 100%; height: 100%; }
+      footer.site-foot { position: relative; z-index: 2; margin-top: 0; padding: 16px 24px; }
+    </style>
+  </head>
+  <body>
+    <header id="site-nav"></header>
+
+    <main class="landing-hero">
+      <!-- Left Content: Editorial & Informative -->
+      <section class="hero-content">
+        <div class="badge-spaceapps">
+          <span>★</span> NASA Space Apps Challenge 2026 · Equipo Estelar 1
+        </div>
+
+        <h1 class="hero-title">
+          Exploración Lunar <span>CLPS</span> al Alcance de Todos
+        </h1>
+
+        <p class="hero-desc">
+          Planificar misiones al <strong>Polo Sur de la Luna</strong> requiere coordinar iluminación extrema y enlaces de radio directos a la Tierra. ArtemisForge permite a científicos, educadores y al público evaluar sitios de alunizaje, predecir energía solar y comparar escenarios ante retrasos de lanzamiento en segundos.
+        </p>
+
+        <!-- Informative Feature Highlights -->
+        <div class="feature-cards">
+          <div class="f-card">
+            <h4><span style="color: var(--blue-electric)">◐</span> Sol Rasante (1.5°)</h4>
+            <p>Calcula sombras dinámicas y energía fotovoltaica disponible en el relieve polar.</p>
+          </div>
+          <div class="f-card">
+            <h4><span style="color: var(--blue-primary)">📡</span> Libración Terrestre</h4>
+            <p>Monitorea ventanas Direct-to-Earth con ±7° de oscilación orbital de la Luna.</p>
+          </div>
+          <div class="f-card">
+            <h4><span style="color: #34d399)">✓</span> NASA LOLA Real</h4>
+            <p>Topografía de 20 m/px sin terreno inventado, validado con JPL Horizons (&lt;0.006°).</p>
+          </div>
+        </div>
+
+        <div style="font-size: 12px; color: var(--text-sub); display: flex; align-items: center; gap: 14px; margin-top: 4px;">
+          <span>Desarrollado por <strong>Estelar 1</strong> (FRC Team Paraguay)</span>
+          <span>•</span>
+          <span>NASA CLPS Task Orders</span>
+        </div>
+      </section>
+
+      <!-- Right 3D Lunar Stage -->
+      <section class="hero-stage-wrapper">
+        <div id="hero-moon-canvas" role="img" aria-label="Modelo 3D Interactivo de la Luna"></div>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      CLPS Lunar Mission Browser · Desarrollado por el equipo <strong>Estelar 1</strong> para el NASA Space Apps Challenge 2026. Datos topográficos de NASA LRO LOLA y efemérides JPL DE421.
+    </footer>
+
+    <script type="module" src="/src/ui/landingPage.js"></script>
+  </body>
+</html>
+

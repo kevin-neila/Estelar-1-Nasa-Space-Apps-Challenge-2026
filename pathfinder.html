@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pathfinder Lunar 4D // Navegador Táctico de Superficie [Polo Sur] — Estelar 1</title>
+    <meta name="description" content="Planificador de ruta para rover lunar A* 4D espaciotemporal en el Polo Sur lunar, optimizando pendiente Bekker-Wong, sombras térmicas y enlace DTE con la Tierra." />
+    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@300;400;500;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/ui/pathfinderGlass.css" />
+    <style>
+      /* Additional fine-tuning for pathfinder glass controls */
+      .brutal-select, .compact-select {
+        width: 100%;
+        background: rgba(12, 16, 26, 0.85);
+        border: 1px solid var(--glass-border);
+        color: var(--text-pure);
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-family: var(--font-main);
+        font-size: 12.5px;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      .brutal-select:focus, .compact-select:focus {
+        border-color: var(--blue-electric);
+        box-shadow: 0 0 10px var(--blue-glow);
+      }
+      .brutal-input {
+        flex: 1;
+        background: rgba(12, 16, 26, 0.85);
+        border: 1px solid var(--glass-border);
+        color: var(--text-pure);
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-family: var(--font-main);
+        font-size: 12px;
+        outline: none;
+      }
+      .brutal-input:focus {
+        border-color: var(--blue-electric);
+      }
+      .model-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .model-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-sub);
+        min-width: 65px;
+      }
+      .file-label {
+        cursor: pointer;
+        padding: 6px 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        border-radius: 6px;
+        font-size: 11px;
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+      .file-label:hover {
+        background: rgba(58, 86, 221, 0.2);
+        color: #fff;
+      }
+      .api-box {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .reseau-grid {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 5;
+      }
+      .cross {
+        position: absolute;
+        color: rgba(142, 166, 255, 0.25);
+        font-family: var(--font-mono);
+        font-size: 18px;
+        line-height: 1;
+        user-select: none;
+      }
+      .c-tl { top: 20px; left: 20px; }
+      .c-tr { top: 20px; right: 20px; }
+      .c-center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+      .c-bl { bottom: 20px; left: 20px; }
+      .c-br { bottom: 20px; right: 20px; }
+      .ruler-ticks {
+        display: flex;
+        justify-content: space-between;
+        font-size: 10px;
+        color: var(--text-sub);
+        font-family: var(--font-mono);
+        margin-top: 2px;
+      }
+      .analog-meter {
+        width: 100%;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 6px;
+      }
+      .analog-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #8ea6ff, #10b981);
+        border-radius: 4px;
+        transition: width 0.3s;
+      }
+      .probe-tape {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .probe-cell {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--glass-border);
+        padding: 8px 10px;
+        border-radius: 8px;
+      }
+      .probe-cell.span-2 {
+        grid-column: span 2;
+      }
+      .probe-cell small {
+        display: block;
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--text-sub);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .probe-cell strong {
+        display: block;
+        font-size: 12.5px;
+        color: var(--text-main);
+        font-family: var(--font-mono);
+        margin-top: 2px;
+      }
+      .phosphor { color: #34d399 !important; }
+      .orange { color: #f59e0b !important; }
+      .amber { color: #fbbf24 !important; }
+      .mono-val { font-family: var(--font-mono); color: var(--blue-electric); font-size: 12px; }
+      .editorial-notes { font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-top: 6px; }
+      .pitch-grid { display: grid; grid-template-columns: minmax(0, 240px) 1fr; gap: 24px; }
+      @media (max-width: 720px) { .pitch-grid { grid-template-columns: 1fr; gap: 14px; } }
+      .brutal-select, .compact-select, .brutal-input { font-size: 16px; }
+      @media (min-width: 681px) { .brutal-select, .compact-select { font-size: 12.5px; } .brutal-input { font-size: 12px; } }
+    </style>
+  </head>
+  <body>
+    <!-- Encabezado Universal Estelar 1 -->
+    <header id="site-nav"></header>
+
+    <div class="pathfinder-shell">
+      <!-- Controles retirados de la interfaz visible (se conservan ocultos: main.js y la verificación dependen de estos IDs) -->
+      <div hidden aria-hidden="true" id="legacy-controls">
+        <span id="i18n-statusReady">TELEMETRÍA NASA LOLA ONLINE</span>
+        <span id="compute-time-badge">(12ms)</span>
+        <span id="i18n-subtitle">ROVER LUNAR TÁCTICO 4D · ESTELAR 1</span>
+        <button type="button" id="btn-lang-toggle">[ES / EN]</button>
+        <button type="button" id="btn-open-pitch"><span id="i18n-btnPitch">Presentación (7 Diapositivas)</span></button>
+        <button type="button" id="btn-export-pdf"><span id="i18n-btnExportPdf">Exportar Dossier EVA (PDF)</span></button>
+        <label id="i18n-panelMissionTitle">PRESETS DE MISIÓN ARTEMIS / CLPS</label>
+        <select id="mission-preset-select"></select>
+        <p id="mission-preset-desc"></p>
+        <button type="button" id="btn-focus-rover">SEGUIR</button>
+        <button type="button" id="btn-toggle-wire"><span id="i18n-btnToggleWire">Malla</span></button>
+        <button type="button" id="btn-reset-cam"><span id="i18n-btnResetCam">Restablecer 3D</span></button>
+        <button type="button" id="btn-animate-sun"><span id="i18n-btnAnimateSun">Rotar Sol (Día Lunar 360°)</span></button>
+        <select id="select-rover-model"><option value="viper_ltv" selected>Rover Lunar Artemis VIPER / LTV</option><option value="custom">Custom</option></select>
+        <input type="file" id="file-rover-glb" accept=".glb,.gltf" />
+        <select id="select-earth-model"><option value="blue_marble" selected>Blue Marble</option><option value="custom">Custom</option></select>
+        <input type="file" id="file-earth-glb" accept=".glb,.gltf" />
+        <select id="select-sun-model"><option value="corona_star" selected>Corona</option><option value="custom">Custom</option></select>
+        <input type="file" id="file-sun-glb" accept=".glb,.gltf" />
+        <span id="val-moon-scale">1.0x</span>
+        <input type="range" id="slider-moon-scale" min="1.0" max="1.0" step="0.1" value="1.0" />
+      </div>
+      <!-- Cuadrícula Cockpit de 3 Columnas -->
+      <main class="cockpit-grid tactical-layout">
+        <!-- Columna Izquierda: Parámetros y Capas -->
+        <aside class="cockpit-column left-col">
+          <!-- 01 / Selector de Sitio y Preset de Misión -->
+          <section class="cockpit-card">
+            <div class="card-title">01 // Sitio y Misión</div>
+            <label style="font-size: 11px; font-weight: 600; color: var(--text-sub); margin-bottom: 4px; display: block;">
+              SITIO LUNAR OBJETIVO
+            </label>
+            <select id="pathfinder-site-select" class="brutal-select" style="margin-bottom: 12px;"></select>
+
+          </section>
+
+          <!-- 02 / Capas PDS Multiespectrales -->
+          <section class="cockpit-card">
+            <div class="card-title" id="i18n-panelLayersTitle">02 // Capas PDS Multiespectrales</div>
+            <div class="layer-btn-stack">
+              <button class="layer-btn active" data-layer="optical">
+                <span class="layer-code">OPT-01</span>
+                <span class="layer-name" id="i18n-layerOptical">Óptica / Albedo ShadowCam</span>
+                <span class="layer-bar" style="background: linear-gradient(90deg, #1c1917, #e7e5e4);"></span>
+              </button>
+              <button class="layer-btn" data-layer="slope">
+                <span class="layer-code">SLP-02</span>
+                <span class="layer-name" id="i18n-layerSlope">Riesgo de Pendiente LOLA (°)</span>
+                <span class="layer-bar" style="background: linear-gradient(90deg, #84cc16, #f59e0b, #ef4444);"></span>
+              </button>
+              <button class="layer-btn" data-layer="thermal">
+                <span class="layer-code">DIV-03</span>
+                <span class="layer-name" id="i18n-layerThermal">Temp. Diviner y Hielo (&lt;110K)</span>
+                <span class="layer-bar" style="background: linear-gradient(90deg, #8ea6ff, #818cf8, #ff5500);"></span>
+              </button>
+              <button class="layer-btn" data-layer="comms">
+                <span class="layer-code">DSN-04</span>
+                <span class="layer-name" id="i18n-layerComms">Línea de Visión DTE Tierra</span>
+                <span class="layer-bar" style="background: linear-gradient(90deg, #a3e635, #8ea6ff, #e11d48);"></span>
+              </button>
+            </div>
+          </section>
+
+          <!-- 03 / Motor Solar Rasante -->
+          <section class="cockpit-card">
+            <div class="card-title" id="i18n-panelSunTitle">03 // Motor Solar Rasante (1.6° Elev)</div>
+            <div class="slider-unit">
+              <div class="slider-unit-header">
+                <span id="i18n-sunAzimuthLabel">Acimut Solar (Fase Sinódica)</span>
+                <strong class="mono-val" id="val-sun-azimuth">315°</strong>
+              </div>
+              <input type="range" id="slider-sun-azimuth" min="0" max="359" step="1" value="315" />
+              <div class="ruler-ticks">
+                <span>0°N</span><span>90°E</span><span>180°S</span><span>270°W</span><span>360°</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 04 / Pesos Cinemáticos Algoritmo A* 4D -->
+          <section class="cockpit-card">
+            <div class="card-title" id="i18n-panelCostTitle">04 // Pesos del Algoritmo A* 4D</div>
+
+            <div class="slider-unit">
+              <div class="slider-unit-header">
+                <span id="i18n-maxSlopeLabel">Pendiente Máxima Segura (°)</span>
+                <strong class="mono-val" id="val-max-slope">15.0°</strong>
+              </div>
+              <input type="range" id="slider-max-slope" min="10" max="24" step="0.5" value="15" />
+            </div>
+
+            <div class="slider-unit">
+              <div class="slider-unit-header">
+                <span id="i18n-weightSlopeLabel">Penalización Vuelco Pendiente</span>
+                <strong class="mono-val" id="val-w-slope">4.0x</strong>
+              </div>
+              <input type="range" id="slider-w-slope" min="0.5" max="8" step="0.5" value="4.0" />
+            </div>
+
+            <div class="slider-unit">
+              <div class="slider-unit-header">
+                <span id="i18n-weightShadowLabel">Evitación Sombra Criogénica</span>
+                <strong class="mono-val" id="val-w-shadow">2.2x</strong>
+              </div>
+              <input type="range" id="slider-w-shadow" min="0" max="6" step="0.2" value="2.2" />
+            </div>
+
+            <div class="slider-unit">
+              <div class="slider-unit-header">
+                <span id="i18n-weightCommsLabel">Prioridad Enlace Tierra (DSN)</span>
+                <strong class="mono-val" id="val-w-comms">2.5x</strong>
+              </div>
+              <input type="range" id="slider-w-comms" min="0" max="6" step="0.5" value="2.5" />
+            </div>
+          </section>
+
+          <!-- 05 / Asignación de Puntos en Terreno -->
+          <section class="cockpit-card">
+            <div class="card-title" id="i18n-clickModeTitle">05 // Modo de Clic en Terreno</div>
+            <div class="mode-switch-group">
+              <button class="mode-btn active" data-mode="inspect" id="i18n-modeInspect">Inspeccionar</button>
+              <button class="mode-btn" data-mode="start" id="i18n-modeSetStart">Fijar HLS (A)</button>
+              <button class="mode-btn" data-mode="goal" id="i18n-modeSetGoal">Fijar Hielo (B)</button>
+            </div>
+          </section>
+
+          <!-- 06 / API NASA -->
+          <section class="cockpit-card">
+            <div class="card-title">06 // API NASA</div>
+
+            <div class="api-box" style="margin-top: 0;">
+              <input
+                type="text"
+                id="input-nasa-api"
+                class="brutal-input"
+                placeholder="Clave API NASA o URL WMTS/DEM..."
+              />
+              <button class="btn btn-outline" id="btn-connect-api" style="font-size: 11px; padding: 6px 12px; white-space: nowrap;">
+                SYNC NASA API
+              </button>
+            </div>
+            <div id="api-status-msg" class="editorial-notes" style="font-size: 11px; color: var(--text-sub);">
+              Datos: Malla PDS LRO LOLA + Diviner + Draping de Teselas NASA Moon Trek.
+            </div>
+          </section>
+        </aside>
+
+        <!-- Columna Central: Viewport 3D WebGL + Osciloscopio de Perfil -->
+        <section class="center-viewport">
+          <div class="viewport-canvas-container">
+            <!-- Retículo Reseau (+) estilo Cámara Hasselblad Apollo -->
+            <div class="reseau-grid" aria-hidden="true">
+              <span class="cross c-tl">+</span>
+              <span class="cross c-tr">+</span>
+              <span class="cross c-center">+</span>
+              <span class="cross c-bl">+</span>
+            </div>
+
+            <div id="lunar-canvas-container"></div>
+
+            <!-- HUD Flotante Superior -->
+            <div class="viewport-hud">
+              <div></div>
+              <div class="viewport-toolbar">
+                <button class="btn btn-outline" id="btn-expand-3d" title="Maximizar área 3D (Tecla: F)" style="font-size: 11px; padding: 4px 10px;">
+                  ⛶ MAX 3D
+                </button>
+                <button class="btn btn-outline" id="btn-toggle-rover" title="Iniciar/Pausar Conducción" style="font-size: 11px; padding: 4px 10px;">
+                  ⏯ ROVER DRIVE
+                </button>
+                <div id="verdict-banner" class="verdict-icon GO" role="status" aria-live="polite" tabindex="0" title="Autorizado para salida del rover (GO)"></div>
+              </div>
+            </div>
+
+            <!-- Coordenadas en texto simple, esquina inferior derecha -->
+            <div class="viewport-coords" aria-label="Coordenadas de la travesía">
+              <div><span class="hud-tag hls">HLS-A</span> <span id="hud-start-coords">89.842°S, 212.0°E</span></div>
+              <div><span class="hud-tag psr">PSR-B</span> <span id="hud-goal-coords">89.810°S, 142.4°E</span></div>
+              <div><span class="hud-tag ltv">ROVER</span> <span id="hud-rover-live">0.0 km • 145K</span></div>
+            </div>
+            <!-- Marca de Agua de Fuente de Datos -->
+            <div class="viewport-watermark">
+              <span id="watermark-source-label">SHACKLETON POLO SUR // LRO LOLA 20M + TEXTURA NAC</span>
+            </div>
+          </div>
+
+          <!-- Muelle Inferior: Osciloscopio de Perfil Topográfico y Térmico -->
+          <div class="oscilloscope-panel">
+            <div class="osc-header">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-family: var(--font-mono); color: var(--blue-electric); font-weight: 700;">FIG. 02 //</span>
+                <span id="i18n-chartTitle" style="font-weight: 600; color: var(--text-main);">
+                  PERFIL DE ELEVACIÓN LOLA (m) Y TEMPERATURA DIVINER (K)
+                </span>
+              </div>
+              <div class="osc-legend">
+                <span class="leg-chip"><i style="background: #34d399;"></i> ELEV. LOLA (m)</span>
+                <span class="leg-chip"><i style="background: #f59e0b;"></i> TEMP. DIVINER (K)</span>
+                <span class="leg-chip"><i style="background: #ffffff;"></i> POSICIÓN ROVER</span>
+              </div>
+            </div>
+            <canvas id="profile-chart-canvas"></canvas>
+          </div>
+        </section>
+
+        <!-- Columna Derecha: Dictamen y Telemetría -->
+        <aside class="cockpit-column right-col">
+          <!-- Cuadro de Telemetría y Presupuesto de Batería -->
+          <section class="cockpit-card">
+            <div class="card-title" style="justify-content: space-between;">
+              <span id="i18n-telemetryTitle">Telemetría de Misión</span>
+              <span style="font-size: 11px; color: var(--text-sub); font-family: var(--font-mono);">LTV-3000Wh</span>
+            </div>
+
+            <!-- Métricas Principales: Distancia y Tiempo -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+              <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border); padding: 12px; border-radius: 10px;">
+                <span style="font-size: 11px; color: var(--text-sub); display: block;" id="i18n-statDistance">Distancia Travesía</span>
+                <strong style="font-size: 20px; font-family: var(--font-mono); color: var(--blue-electric);" id="stat-val-distance">4.77 km</strong>
+              </div>
+              <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border); padding: 12px; border-radius: 10px;">
+                <span style="font-size: 11px; color: var(--text-sub); display: block;" id="i18n-statDuration">Tiempo Misión (MET)</span>
+                <strong style="font-size: 20px; font-family: var(--font-mono); color: var(--text-main);" id="stat-val-duration">1h 46m</strong>
+              </div>
+            </div>
+
+            <!-- Batería y Permanencia en Sombra Criogénica -->
+            <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border); padding: 12px; border-radius: 10px; margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 12px; color: var(--text-sub);" id="i18n-statBattery">Batería Restante LTV</span>
+                <strong class="phosphor" style="font-family: var(--font-mono); font-size: 15px;" id="stat-val-battery">72.9%</strong>
+              </div>
+              <div class="analog-battery-track">
+                <div class="analog-battery-fill" id="battery-bar-fill" style="width: 72.9%;"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px;">
+                <span style="color: var(--text-sub);" id="i18n-statPsrDwell">En Sombra Criogénica (&lt;110K):</span>
+                <strong class="orange" style="font-family: var(--font-mono);" id="stat-val-psr">42 min</strong>
+              </div>
+            </div>
+
+            <!-- Especificaciones del Terreno -->
+            <div class="spec-list">
+              <div class="spec-row">
+                <span style="color: var(--text-muted);" id="i18n-statMaxSlope">Pendiente Máxima</span>
+                <strong class="amber" style="font-family: var(--font-mono);" id="stat-val-slope">16.0°</strong>
+              </div>
+              <div class="spec-row">
+                <span style="color: var(--text-muted);" id="i18n-statMinTemp">Temperatura Mínima</span>
+                <strong style="font-family: var(--font-mono); color: var(--blue-electric);" id="stat-val-temp">64.2 K</strong>
+              </div>
+              <div class="spec-row">
+                <span style="color: var(--text-muted);" id="i18n-statIceYield">Rendimiento Hielo de Agua</span>
+                <strong class="phosphor" style="font-family: var(--font-mono);" id="stat-val-ice">4.36 wt%</strong>
+              </div>
+              <div class="spec-row">
+                <span style="color: var(--text-muted);" id="i18n-statCommsCov">Cobertura DSN con la Tierra</span>
+                <strong style="font-family: var(--font-mono); color: var(--text-main);" id="stat-val-comms">91.2%</strong>
+              </div>
+            </div>
+          </section>
+
+          <!-- Sonda de Cursor en Tiempo Real -->
+          <section class="cockpit-card">
+            <div class="card-title" style="justify-content: space-between;">
+              <span id="i18n-inspectorTitle">Telemetría de Cursor</span>
+              <span style="font-size: 10px; color: var(--blue-electric); font-weight: 700;">SONDA RETÍCULO</span>
+            </div>
+            <div class="probe-tape">
+              <div class="probe-cell span-2">
+                <small>COORDENADAS ESTEREOGRÁFICAS</small>
+                <strong id="insp-coords">89.85°S, 180.0°E</strong>
+              </div>
+              <div class="probe-cell">
+                <small>ELEVACIÓN LOLA</small>
+                <strong id="insp-elev">+1,140 m</strong>
+              </div>
+              <div class="probe-cell">
+                <small>PENDIENTE</small>
+                <strong id="insp-slope">6.2°</strong>
+              </div>
+              <div class="probe-cell">
+                <small>TEMP. DIVINER</small>
+                <strong id="insp-temp">142.5 K</strong>
+              </div>
+              <div class="probe-cell">
+                <small>VOLÁTIL H₂O</small>
+                <strong id="insp-ice">0.00 wt%</strong>
+              </div>
+              <div class="probe-cell span-2">
+                <small>ESTADO EFEMÉRIDE</small>
+                <strong id="insp-status" style="color: var(--ok);">LÍNEA DIRECTA OK · ILUMINADO</strong>
+              </div>
+            </div>
+          </section>
+
+          <!-- Atribución y Fuentes NASA PDS -->
+          <footer style="font-size: 11px; color: var(--text-sub); line-height: 1.5; padding: 4px 6px;">
+            <strong style="color: var(--text-muted);">Fuentes Oficiales NASA PDS:</strong>
+            LRO LOLA DEM (20m/px) · Diviner Bolometric Temp · ShadowCam PSR Albedo · Efemérides JPL DE421.
+          </footer>
+        </aside>
+      </main>
+    </div>
+
+    <!-- Modal Monográfico de Presentación (7 Diapositivas) -->
+    <div id="pitch-modal-backdrop" class="modal-backdrop hidden">
+      <div class="pitch-glass-modal">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">
+          <div style="font-size: 13px; font-weight: 700; color: var(--blue-electric); text-transform: uppercase;" id="i18n-pitchModalTitle">
+            NASA Space Apps 2026 — Presentación Oficial (7 Diapositivas)
+          </div>
+          <button class="btn btn-outline" id="btn-close-pitch" style="font-size: 11px; padding: 4px 10px;">
+            [CERRAR / ESC]
+          </button>
+        </div>
+
+        <div class="pitch-grid">
+          <div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--blue-electric); font-family: var(--font-mono);" id="slide-num">DIAPOSITIVA 1 / 7</div>
+            <h2 style="font-size: 24px; font-family: var(--font-heading); color: var(--text-pure); margin-top: 8px;" id="slide-title"></h2>
+            <div style="font-size: 13px; font-family: var(--font-mono); color: #34d399; margin-top: 14px; background: rgba(16, 185, 129, 0.15); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(52, 211, 153, 0.3);" id="slide-metric"></div>
+          </div>
+
+          <div>
+            <blockquote style="font-size: 15px; color: var(--text-main); font-style: italic; border-left: 3px solid var(--blue-primary); padding-left: 14px; margin-bottom: 14px; line-height: 1.5;" id="slide-hook"></blockquote>
+            <ul style="color: var(--text-muted); font-size: 14px; line-height: 1.6; padding-left: 20px;" id="slide-bullets"></ul>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--glass-border); padding-top: 14px;">
+          <button class="btn btn-outline" id="btn-prev-slide" style="font-size: 12px; padding: 6px 14px;">
+            ← Anterior
+          </button>
+          <div class="slide-dots" id="slide-dots-container"></div>
+          <button class="btn btn-primary" id="btn-next-slide" style="font-size: 12px; padding: 6px 16px;">
+            Siguiente →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

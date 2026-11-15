@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+.env.local
+__pycache__/
+*.pyc
+# Large raw NASA downloads (re-creatable with scripts/)
+scripts/cache/

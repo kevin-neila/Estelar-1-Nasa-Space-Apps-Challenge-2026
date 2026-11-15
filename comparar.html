@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comparación de Escenarios — Estelar 1</title>
+    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <link rel="stylesheet" href="/src/ui/glass.css" />
+    <style>
+      .compare-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 18px;
+        margin-top: 18px;
+      }
+      .scenario-card {
+        background: var(--bg-card);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 20px;
+        position: relative;
+        box-shadow: var(--glass-shadow);
+        transition: border-color 0.2s;
+      }
+      .scenario-card.primary-sc {
+        border-color: var(--blue-electric);
+        box-shadow: 0 12px 36px rgba(58, 86, 221, 0.25);
+      }
+      .sc-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .delta-badge {
+        font-size: 11px;
+        padding: 3px 7px;
+        border-radius: 6px;
+        font-weight: 700;
+        margin-right: 4px;
+      }
+      .delta-pos { background: rgba(52, 211, 153, 0.2); color: #34d399; }
+      .delta-neg { background: rgba(248, 113, 113, 0.2); color: #f87171; }
+      .diff-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 14px;
+        font-size: 13px;
+      }
+      .diff-table td, .diff-table th {
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--glass-border);
+      }
+      .quick-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <header id="site-nav"></header>
+
+    <main class="wrap">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <div class="muted" style="font-size: 12px; font-weight: 600;">ARQUITECTURA DE MISIÓN CLPS</div>
+          <h1>Comparador de Escenarios</h1>
+          <p class="muted">
+            Evalúa retrasos de lanzamiento, sitios alternativos y compensaciones entre energía solar y enlace con la Tierra.
+          </p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn primary" id="btn-add-scenario">+ Añadir Escenario</button>
+          <button class="btn" id="btn-share-comparison">Compartir Comparación</button>
+        </div>
+      </div>
+
+      <!-- Quick Preset Triggers -->
+      <section class="glass-panel" style="margin-top: 18px;">
+        <h3>Escenarios de Evaluación Rápida</h3>
+        <p class="muted" style="font-size: 13px; margin-bottom: 8px;">
+          Dilemas comunes de planificación ante imprevistos en la rampa de despegue:
+        </p>
+        <div class="quick-actions" id="quick-presets">
+          <button class="btn small" data-preset="slip14">Retraso de Lanzamiento: +14 Días en Mons Mouton</button>
+          <button class="btn small" data-preset="south-vs-crisium">Polo Sur vs Ecuatorial: Mons Mouton vs Mare Crisium</button>
+          <button class="btn small" data-preset="farside">Cara Visible vs Cara Oculta: Reiner Gamma vs Schrödinger</button>
+          <button class="btn small" data-preset="ridge-vs-crater">Cresta Shackleton vs Cráter Malapert A</button>
+        </div>
+      </section>
+
+      <!-- Comparison Cards Container -->
+      <section class="compare-grid" id="scenarios-container"></section>
+
+      <!-- Synthesis Summary Matrix -->
+      <section class="glass-panel" style="margin-top: 24px;">
+        <h2>Matriz de Síntesis de Viabilidad</h2>
+        <div style="overflow-x: auto; margin-top: 10px;">
+          <table class="t diff-table" id="matrix-table">
+            <thead>
+              <tr id="matrix-head">
+                <th>Escenario</th>
+                <th>Sitio y Coords</th>
+                <th>Inicio (UTC)</th>
+                <th>Iluminación %</th>
+                <th>Máx Oscuridad</th>
+                <th>Enlace Tierra %</th>
+                <th>Mayor Apagón</th>
+                <th>Energía</th>
+                <th>Comunicaciones</th>
+              </tr>
+            </thead>
+            <tbody id="matrix-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      CLPS Mission Browser · Topografía de NASA LRO LOLA · Efemérides JPL DE421 · Desarrollado por <strong>Estelar 1</strong> para NASA Space Apps 2026
+    </footer>
+
+    <script type="module" src="/src/ui/compararPage.js"></script>
+  </body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Análisis de Sitio Lunar — Estelar 1</title>
+    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <link rel="stylesheet" href="/src/ui/glass.css" />
+    <style>
+      .controls-bar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        align-items: end;
+      }
+      .mode-toggle {
+        display: inline-flex;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        border-radius: 9999px;
+        padding: 3px;
+      }
+      .mode-toggle button {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        padding: 6px 14px;
+        font-family: var(--font-main);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 9999px;
+        transition: all 0.2s;
+      }
+      .mode-toggle button.on {
+        background: var(--blue-primary);
+        color: #ffffff;
+        box-shadow: 0 2px 10px var(--blue-glow);
+      }
+      .lights-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+      .light-pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--glass-border);
+        border-radius: 9999px;
+        padding: 6px 14px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .site-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+      .stack { display: flex; flex-direction: column; gap: 20px; }
+      .mode-label { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+      .panel-kicker { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue-light); margin-bottom: 6px; }
+      .dome-row { display: grid; grid-template-columns: minmax(240px, 320px) 1fr; gap: 18px; margin-top: 18px; align-items: start; }
+      @media (max-width: 860px) { .dome-row { grid-template-columns: 1fr; } .dome-row canvas { margin: 0 auto; } }
+      .thresholds-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px 16px;
+        align-items: stretch;
+      }
+      .thresholds-grid label.field {
+        justify-content: space-between;
+        height: 100%;
+      }
+      @media (max-width: 960px) {
+        .thresholds-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 520px) {
+        .thresholds-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <header id="site-nav"></header>
+
+    <main class="wrap">
+      <div class="site-header">
+        <div>
+          <div class="muted" style="font-size: 12px; font-weight: 600;" id="site-kicker">SITIO DE ALUNIZAJE CLPS</div>
+          <h1 id="site-name" style="font-size: clamp(28px, 4vw, 46px);">Cargando datos...</h1>
+          <div class="muted" id="site-sub" style="margin-top: 4px;"></div>
+        </div>
+        <span class="mode-label">Planificador</span>
+      </div>
+      </div>
+
+      <!-- Controls Panel -->
+      <section class="glass-panel">
+        <div class="controls-bar">
+          <label class="field">Misión / Sitio
+            <select id="sel-site"></select>
+          </label>
+          <label class="field custom-only" style="display: none;">Latitud (°, S negativa)
+            <input type="number" id="in-lat" step="0.01" min="-90" max="90" value="-89.5" />
+          </label>
+          <label class="field custom-only" style="display: none;">Longitud (°E)
+            <input type="number" id="in-lon" step="0.01" min="-180" max="360" value="0" />
+          </label>
+          <label class="field">Inicio de Ventana (UTC)
+            <input type="datetime-local" id="in-time" />
+          </label>
+          <label class="field">Duración de Evaluación
+            <select id="sel-days">
+              <option value="2">2 Días</option>
+              <option value="7">7 Días</option>
+              <option value="15" selected>15 Días</option>
+              <option value="29.5">1 Día Lunar (29.5 d)</option>
+            </select>
+          </label>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn" id="btn-play">▶ Reproducir</button>
+            <button class="btn" id="btn-share" title="Copiar enlace a este escenario">Compartir</button>
+          </div>
+        </div>
+
+        <div style="margin-top: 14px;">
+          <label class="field">Momento en la Ventana: <span id="cursor-label" class="mono" style="color: var(--blue-electric); font-weight: 600;"></span>
+            <input type="range" id="cursor" min="0" max="100" value="0" />
+          </label>
+        </div>
+      </section>
+
+      <!-- Horizon Panorama & Dome -->
+      <section class="glass-panel" style="margin-top: 20px;">
+        <h2>Posición del Sol y la Tierra sobre el Horizonte Real</h2>
+        <p class="muted" style="font-size: 13px; margin-bottom: 12px;">
+          Perfil de horizonte de 360° calculado a partir de la altimetría de NASA LOLA considerando la curvatura lunar.
+        </p>
+        <canvas id="cv-pano" class="chart" style="height: 280px;" role="img" aria-label="Panorama del Sol y la Tierra"></canvas>
+
+        <div class="dome-row">
+          <div>
+            <canvas id="cv-dome" class="chart" role="img" aria-label="Bóveda Celeste Cenital"></canvas>
+          </div>
+          <div class="grid cols-3" id="now-metrics" style="gap: 12px;"></div>
+        </div>
+      </section>
+
+      <!-- Timeline View -->
+      <section class="glass-panel" style="margin-top: 20px;">
+        <h2>Línea de Tiempo Operativa</h2>
+        <p class="muted" style="font-size: 13px; margin-bottom: 8px;">
+          Haz clic o arrastra sobre la gráfica para moverte en el tiempo y ver los eventos de ocaso y comunicación.
+        </p>
+        <canvas id="cv-timeline" class="chart" style="height: 250px;" role="img" aria-label="Timeline de elevación solar y terrestre"></canvas>
+      </section>
+
+      <!-- Assessment & Thresholds -->
+      <section class="stack" style="margin-top: 20px;">
+        <div class="glass-panel">
+          <div class="panel-kicker">Explorador</div>
+          <h2>Evaluación de Viabilidad</h2>
+          <div class="lights-row" id="lights"></div>
+          <p id="plain" style="margin-top: 14px; font-size: 14px; line-height: 1.6;"></p>
+          <div class="grid cols-3" id="win-metrics" style="margin-top: 16px; gap: 12px;"></div>
+        </div>
+
+        <div class="glass-panel">
+          <h2>Umbrales Técnicos de Misión</h2>
+          <p class="muted" style="font-size: 13px; margin-bottom: 12px;">
+            Personaliza los límites de energía y comunicaciones de tu módulo de aterrizaje.
+          </p>
+          <div class="thresholds-grid" id="thresholds"></div>
+          <div style="margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn small" id="btn-csv">Descargar CSV Horario</button>
+            <a class="btn small primary" id="lnk-compare" href="comparar.html">Llevar a Comparador →</a>
+            <a class="btn small" id="lnk-path" href="pathfinder.html">Cabina Pathfinder →</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Provenance -->
+      <section class="glass-panel" style="margin-top: 20px;">
+        <h3>Datos de Misión y Fuentes Científicas</h3>
+        <div id="provenance" class="muted" style="font-size: 13px; margin-top: 8px;"></div>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      ArtemisForge · Topografía de NASA LRO LOLA · Efemérides JPL DE421 · Desarrollado por <strong>Estelar 1</strong> para el NASA Space Apps 2026
+    </footer>
+
+    <script type="module" src="/src/ui/sitioPage.js"></script>
+  </body>
+</html>
+
+

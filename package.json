@@ -1,0 +1,22 @@
+{
+  "name": "artemis-forge-pathfinder",
+  "version": "2.0.26",
+  "private": true,
+  "description": "NASA Space Apps Challenge 2026 — Artemis South Pole Pathfinder (ArtemisForge)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5173",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 4173",
+    "test": "node scripts/verify_engine.mjs",
+    "validate:horizons": "node scripts/validate_horizons.mjs",
+    "generate-data": "python scripts/generate_lunar_data.py"
+  },
+  "dependencies": {
+    "jspdf": "^2.5.2",
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.11"
+  }
+}

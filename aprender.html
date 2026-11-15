@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Por qué es difícil el Alunizaje — Guía Educativa CLPS | Estelar 1</title>
+    <meta name="description" content="Guía interactiva sobre iluminación polar lunar, geometría de comunicación directa a la Tierra (DTE), libración lunar y casos reales de misiones CLPS." />
+    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <link rel="stylesheet" href="/src/ui/glass.css" />
+    <style>
+      .learn-article { max-width: 960px; margin: 40px auto; padding: 0 24px; }
+      .learn-hero { margin-bottom: 36px; }
+      .case-study { 
+        background: linear-gradient(145deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03)); backdrop-filter: blur(26px) saturate(170%); -webkit-backdrop-filter: blur(26px) saturate(170%); 
+        border-left: 4px solid var(--blue-primary); 
+        padding: 20px 24px; 
+        border-radius: 0 16px 16px 0; 
+        margin: 20px 0; 
+        box-shadow: var(--glass-shadow);
+        backdrop-filter: blur(16px);
+      }
+      .case-study h3 { color: var(--blue-electric); font-size: 19px; margin-bottom: 8px; }
+      .interactive-demo { 
+        background: linear-gradient(145deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03)); backdrop-filter: blur(26px) saturate(170%); -webkit-backdrop-filter: blur(26px) saturate(170%); 
+        border: 1px solid var(--glass-border-bright); 
+        border-radius: 20px; 
+        padding: 28px; 
+        margin: 32px 0; 
+        backdrop-filter: blur(20px);
+        box-shadow: 0 20px 50px rgba(58, 86, 221, 0.15);
+      }
+      .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin: 28px 0; }
+      .concept-card { 
+        background: var(--bg-card); 
+        border: 1px solid var(--glass-border); 
+        border-radius: 16px; 
+        padding: 22px; 
+        backdrop-filter: blur(16px);
+        transition: transform 0.2s ease, border-color 0.2s ease;
+      }
+      .concept-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--blue-electric);
+      }
+      .concept-card h3 { color: var(--blue-electric); font-size: 18px; margin-bottom: 10px; font-family: var(--font-heading); }
+      .demo-canvas { 
+        width: 100%; 
+        height: 220px; 
+        background: rgba(5, 8, 22, 0.6); 
+        border: 1px solid var(--glass-border); 
+        border-radius: 12px; 
+        display: block; 
+        margin-top: 14px;
+      }
+      .demo-controls {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 16px;
+      }
+      .slider-box {
+        flex: 1;
+        min-width: 260px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      input[type="range"] {
+        accent-color: var(--blue-primary);
+        cursor: pointer;
+      }
+      .chip-tag {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background: rgba(58, 86, 221, 0.2);
+        color: var(--blue-electric);
+        border: 1px solid rgba(142, 166, 255, 0.4);
+        margin-bottom: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <header id="site-nav"></header>
+
+    <main class="wrap">
+      <article class="learn-article">
+        <div class="learn-hero">
+          <span class="chip-tag">EXPLORADOR EDUCATIVO · ASTRONOMÍA E INGENIERÍA ESPACIAL</span>
+          <h1 style="font-size: 40px; font-weight: 800; font-family: var(--font-heading); line-height: 1.2;">
+            ¿Por qué Alunizar en el Polo Sur es tan Difícil?
+          </h1>
+          <p style="color: var(--text-muted); font-size: 17px; margin-top: 14px;">
+            El polo sur de la Luna alberga miles de millones de toneladas de hielo de agua milenario en sombras permanentes. Sin embargo, acceder a estos depósitos requiere sortear las condiciones de iluminación y radiofrecuencia más extremas del Sistema Solar interior.
+          </p>
+        </div>
+
+        <section class="concept-grid">
+          <div class="concept-card">
+            <h3>1. El Sol Rasante de ~1.5°</h3>
+            <p style="font-size: 14px; color: var(--text-muted);">
+              El eje de rotación lunar tiene una inclinación de solo <strong>1.54°</strong> respecto a la eclíptica (frente a los 23.5° de la Tierra). El Sol nunca sube alto en el cielo: bordea permanentemente el horizonte. Una modesta colina de 100 m proyecta sombras de más de <strong>4 kilómetros</strong> de longitud.
+            </p>
+          </div>
+          <div class="concept-card">
+            <h3>2. Bamboleo Terrestre (Libración)</h3>
+            <p style="font-size: 14px; color: var(--text-muted);">
+              Aunque la Luna está en rotación sincrónica con la Tierra, su órbita es elíptica e inclinada. La <strong>libración óptica y física de ±7°</strong> hace que la Tierra oscile verticalmente respecto al horizonte polar, cortando y reanudando la comunicación directa repetidas veces.
+            </p>
+          </div>
+          <div class="concept-card">
+            <h3>3. Regiones en Sombra Permanente (PSRs)</h3>
+            <p style="font-size: 14px; color: var(--text-muted);">
+              Los fondos de los cráteres profundos no han recibido luz solar en más de 2.000 millones de años. Las temperaturas caen por debajo de los <strong>40 Kelvin (-233 °C)</strong>, congelando la electrónica y baterías de rovers y módulos si no cuentan con calefacción por radioisótopos.
+            </p>
+          </div>
+        </section>
+
+        <!-- Demostración interactiva -->
+        <section class="interactive-demo">
+          <span class="chip-tag">SIMULADOR INTERACTIVO DE SOMBRA POLAR</span>
+          <h2 style="font-size: 22px; font-family: var(--font-heading); margin-bottom: 6px;">
+            El Sol Rasante y las Sombras Kilométricas
+          </h2>
+          <p style="font-size: 14px; color: var(--text-muted);">
+            Ajusta el ángulo de elevación solar con el control deslizante. Observa cómo al acercarse a los <strong>1.5° típicos del polo sur</strong>, el borde del cráter proyecta una sombra que sumerge por completo el lecho del cráter en oscuridad criogénica absoluta.
+          </p>
+
+          <div class="demo-controls">
+            <div class="slider-box">
+              <label for="slider-elev" style="font-size: 13px; font-weight: 600; color: var(--text-main);">
+                Ángulo de Elevación Solar: <span id="lbl-sun-elev" class="mono" style="color: var(--blue-electric); font-weight: 700;">1.5° (Polo Sur Lunar)</span>
+              </label>
+              <input type="range" id="slider-elev" min="0.2" max="45" step="0.2" value="1.5" />
+            </div>
+            <button class="btn btn-outline" id="btn-demo-preset-pole" style="font-size: 13px; padding: 8px 16px;">
+              Polo Sur (1.5°)
+            </button>
+            <button class="btn btn-outline" id="btn-demo-preset-equator" style="font-size: 13px; padding: 8px 16px;">
+              Ecuador al Mediodía (45°)
+            </button>
+          </div>
+
+          <canvas id="cv-shadow-demo" class="demo-canvas"></canvas>
+          <div style="font-size: 12px; color: var(--text-sub); margin-top: 8px;">
+            Perfil transversal de un cráter de 2 km de diámetro y 400 m de profundidad modelado con altimetría LOLA. Línea amarilla: incidencia de luz solar directa; azul oscuro: manto de sombra permanente.
+          </div>
+        </section>
+
+        <!-- Casos de Estudio Reales de CLPS -->
+        <h2 style="font-size: 26px; font-family: var(--font-heading); margin-top: 40px; margin-bottom: 12px;">
+          Casos de Vuelo Reales de Misiones CLPS
+        </h2>
+        <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 20px;">
+          Los desafíos que visualiza nuestro navegador no son meramente teóricos: las misiones comerciales recientes enfrentaron de manera crítica estas restricciones físicas.
+        </p>
+
+        <div class="case-study">
+          <h3>Caso 1: IM-1 "Odysseus" (Intuitive Machines · Febrero 2024)</h3>
+          <p style="font-size: 14px; color: var(--text-main); line-height: 1.6;">
+            <strong>Objetivo:</strong> Borde del cráter Malapert A (~80.13°S, 1.44°E).<br />
+            <strong>Qué Ocurrió:</strong> Odysseus alunizó con velocidad lateral residual, fracturando una de las patas y recostándose sobre su costado. Debido a que sus paneles solares estaban configurados verticalmente para captar el Sol rasante polar, la posición recostada degradó la generación de energía. Además, cráteres locales elevados bloquearon temporalmente la línea visual directa de radio con las antenas de la Tierra.
+          </p>
+        </div>
+
+        <div class="case-study">
+          <h3>Caso 2: IM-2 "Athena" (Intuitive Machines · 2025/2026)</h3>
+          <p style="font-size: 14px; color: var(--text-main); line-height: 1.6;">
+            <strong>Objetivo:</strong> Meseta de Mons Mouton (~84.79°S, 29.20°E).<br />
+            <strong>Importancia de la Selección del Sitio:</strong> Mons Mouton se seleccionó por ser una meseta elevada que recibe periodos de iluminación solar continua sustancialmente más prolongados que las cuencas circundantes. No obstante, un desvío de apenas 100 metros hacia una micro-depresión topográfica puede reducir las horas de luz en más de un 60%, amenazando la supervivencia térmica del módulo.
+          </p>
+        </div>
+
+        <div class="case-study">
+          <h3>Caso 3: Peregrine Mission One (Astrobotic · Enero 2024)</h3>
+          <p style="font-size: 14px; color: var(--text-main); line-height: 1.6;">
+            <strong>Lección Aprendida:</strong> Cuando ocurren anomalías de trayectoria o retrasos en la ventana de lanzamiento, los sitios de alunizaje alternativos deben reevaluarse en cuestión de minutos. Esta plataforma fue diseñada específicamente para permitir a planificadores de misión e investigadores comparar de inmediato fechas y sitios alternativos.
+          </p>
+        </div>
+
+        <!-- Llamada a la acción -->
+        <div style="margin-top: 48px; text-align: center; padding: 36px; background: linear-gradient(145deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03)); backdrop-filter: blur(26px) saturate(170%); -webkit-backdrop-filter: blur(26px) saturate(170%); border: 1px solid var(--glass-border-bright); border-radius: 20px; box-shadow: var(--glass-shadow); backdrop-filter: blur(20px);">
+          <h3 style="font-size: 26px; font-family: var(--font-heading); color: var(--text-pure);">
+            ¿Listo para Explorar los Sitios Reales?
+          </h3>
+          <p style="color: var(--text-muted); margin-top: 8px; margin-bottom: 24px; font-size: 15px;">
+            Consulta las condiciones de iluminación y enlace DTE en tiempo real para las próximas misiones de la NASA.
+          </p>
+          <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+            <a class="btn btn-primary" href="mapa.html">Abrir Globo 3D Lunar</a>
+            <a class="btn btn-outline" href="sitio.html?id=bluemoon1">Analizar Cresta de Shackleton</a>
+            <a class="btn btn-outline" href="comparar.html">Comparador de Retrasos</a>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-content">
+        <p><strong>CLPS Lunar Mission Browser</strong> — Equipo <strong>Estelar 1</strong> (FRC Team Paraguay)</p>
+        <p style="font-size: 13px; color: var(--text-sub); margin-top: 4px;">
+          NASA International Space Apps Challenge 2026 · Topografía real LOLA (LRO) y Efemérides JPL DE421
+        </p>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/ui/aprenderPage.js"></script>
+  </body>
+</html>
