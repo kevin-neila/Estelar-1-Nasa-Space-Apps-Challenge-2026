@@ -260,13 +260,17 @@ $("in-lola-file")?.addEventListener("change", async (e) => {
     }
     if (statusEl) {
       statusEl.style.color = "#34D399";
-      statusEl.textContent = `✓ Cargado: ${file.name} (${customProduct.horizon_deg.length} azimuts${customProduct.elevation_m?.length ? " + grilla 40×40 km" : ""})`;
+      statusEl.textContent = getLang() === "en"
+        ? `✓ Loaded: ${file.name} (${customProduct.horizon_deg.length} azimuths${customProduct.elevation_m?.length ? " + 40×40 km grid" : ""})`
+        : `✓ Cargado: ${file.name} (${customProduct.horizon_deg.length} azimuts${customProduct.elevation_m?.length ? " + grilla 40×40 km" : ""})`;
     }
     await loadSite();
   } catch (err) {
     if (statusEl) {
       statusEl.style.color = "#F87171";
-      statusEl.textContent = `✕ Error al leer ${file.name}: ${err.message}`;
+      statusEl.textContent = getLang() === "en"
+        ? `✕ Failed to read ${file.name}: ${err.message}`
+        : `✕ Error al leer ${file.name}: ${err.message}`;
     }
   } finally {
     e.target.value = "";

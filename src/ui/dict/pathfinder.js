@@ -189,5 +189,14 @@ export default {
   "DIAPOSITIVA 1 / 7": "SLIDE 1 / 7",
   "← Anterior": "← Previous",
   "Siguiente →": "Next →",
-  "110K H₂O ICE SUBLIMATION LIMIT": "110K H₂O ICE SUBLIMATION LIMIT"
+  "110K H₂O ICE SUBLIMATION LIMIT": "110K H₂O ICE SUBLIMATION LIMIT",
+  "Capas": "Layers",
+  "Capas del mapa": "Map layers",
+  "Óptica": "Optical",
+  "Pendiente": "Slope",
+  "Hielo / Temp": "Ice / Temp",
+  "Enlace Tierra": "Earth Link",
+  "SIMULACIÓN": "SIMULATION",
+  "Desliza para controles ↓": "Swipe for controls ↓",
+  "Mostrar u ocultar panel de telemetría": "Show or hide telemetry panel"
 };
